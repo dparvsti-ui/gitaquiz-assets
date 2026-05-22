@@ -1,0 +1,1157 @@
+bash
+
+cat > /mnt/user-data/outputs/ch2-quiz.html << 'HTMLEOF'
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Bhagavad-Gita Chapter 2 Quiz — ISKCON Vrindavan</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Noto+Sans+Devanagari:wght@300;400;500;600;700&family=EB+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#06020e;
+  --bg2:#0c0618;
+  --crimson:#8b1a1a;
+  --crimsonl:#b52222;
+  --crimsond:#5c0f0f;
+  --gold:#c9a84c;
+  --goldl:#e8c56a;
+  --goldd:#8b6914;
+  --ivory:#f5ede0;
+  --ivoryd:#d4c4a8;
+  --muted:#9a8878;
+  --purp:#2d1042;
+  --ok:#2ea86e;
+  --bad:#c0392b;
+  --divw:#f5ede0;
+  --txt:#f5ede0;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html{height:100%;overflow-x:hidden;}
+body{font-family:'Noto Sans Devanagari',sans-serif;background:var(--bg);color:var(--txt);min-height:100vh;min-height:100dvh;overflow-x:hidden;}
+#bgCanvas{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none;}
+#spkCanvas{position:fixed;top:0;left:0;width:100%;height:100%;z-index:999;pointer-events:none;}
+.fog1,.fog2{position:fixed;bottom:0;pointer-events:none;z-index:1;}
+.fog1{left:0;width:200%;height:35%;background:radial-gradient(ellipse 80% 60% at 50% 100%,rgba(80,10,10,0.35) 0%,transparent 70%);animation:fd1 18s ease-in-out infinite alternate;}
+.fog2{left:-30%;width:200%;height:22%;background:radial-gradient(ellipse 60% 50% at 40% 100%,rgba(139,26,26,0.18) 0%,transparent 70%);animation:fd2 24s ease-in-out infinite alternate;}
+@keyframes fd1{0%{transform:translateX(0) scaleX(1)}100%{transform:translateX(-8%) scaleX(1.08)}}
+@keyframes fd2{0%{transform:translateX(0)}100%{transform:translateX(10%)}}
+
+.screen{display:none;position:relative;z-index:10;min-height:100vh;min-height:100dvh;flex-direction:column;}
+.screen.active{display:flex;}
+#transOverlay{position:fixed;inset:0;z-index:800;background:#000;opacity:0;pointer-events:none;transition:opacity 0.3s ease;}
+@keyframes fadeInUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeInScale{from{opacity:0;transform:scale(0.94)}to{opacity:1;transform:scale(1)}}
+.fade-in{animation:fadeInUp 0.42s cubic-bezier(0.4,0,0.2,1);}
+.ripple-host{position:relative;overflow:hidden;}
+.ripple{position:absolute;border-radius:50%;background:rgba(201,168,76,0.25);transform:scale(0);animation:rippleAnim 0.55s ease-out forwards;pointer-events:none;}
+@keyframes rippleAnim{to{transform:scale(4);opacity:0;}}
+
+/* ISKCON BADGE */
+.iskcon-badge{display:flex;flex-direction:column;align-items:center;margin-bottom:0.5rem;opacity:0.9;}
+.iskcon-badge .logo{font-size:0.85rem;letter-spacing:0.2em;font-family:'Cinzel',serif;color:var(--gold);font-weight:700;}
+.iskcon-badge .sub{font-size:0.48rem;letter-spacing:0.18em;color:var(--muted);text-transform:uppercase;margin-top:0.05rem;}
+
+/* ═══ LANGUAGE SCREEN ═══ */
+#langScreen{align-items:center;justify-content:center;padding:1.5rem;}
+.lang-wrap{max-width:400px;width:100%;display:flex;flex-direction:column;align-items:center;gap:1.1rem;}
+.lang-ornament{font-size:2.4rem;animation:langFloat 3s ease-in-out infinite alternate;filter:drop-shadow(0 0 18px rgba(201,168,76,0.5));}
+@keyframes langFloat{0%{transform:translateY(0)}100%{transform:translateY(-8px)}}
+.lang-title{font-family:'Cinzel',serif;font-size:clamp(1.2rem,4vw,2rem);font-weight:900;background:linear-gradient(135deg,var(--goldl) 0%,#fff8e0 40%,var(--gold) 70%,var(--goldd) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;text-align:center;line-height:1.2;filter:drop-shadow(0 0 14px rgba(201,168,76,0.3));}
+.lang-ch{font-family:'EB Garamond',serif;font-size:clamp(0.7rem,2vw,0.9rem);color:var(--goldl);opacity:0.8;text-align:center;letter-spacing:0.08em;}
+.lang-divider{display:flex;align-items:center;gap:0.6rem;opacity:0.5;width:100%;}
+.lang-divider::before,.lang-divider::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);}
+.lang-divider span{color:var(--gold);font-size:0.75rem;}
+.lang-cards{display:flex;gap:0.9rem;width:100%;}
+.lang-card{flex:1;position:relative;border-radius:18px;padding:1.3rem 0.8rem;display:flex;flex-direction:column;align-items:center;gap:0.55rem;cursor:pointer;border:1px solid rgba(201,168,76,0.22);background:linear-gradient(145deg,rgba(12,6,24,0.85),rgba(20,8,8,0.7));backdrop-filter:blur(16px);box-shadow:0 0 28px rgba(139,26,26,0.14),0 6px 22px rgba(0,0,0,0.4),inset 0 1px 0 rgba(201,168,76,0.1);transition:all 0.35s cubic-bezier(0.34,1.3,0.64,1);overflow:hidden;}
+.lang-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1.5px;background:linear-gradient(90deg,transparent,rgba(201,168,76,0.6),transparent);transition:opacity 0.3s;}
+.lang-card::after{content:'';position:absolute;inset:0;border-radius:18px;background:radial-gradient(ellipse at 50% 0%,rgba(139,26,26,0.12),transparent 60%);opacity:0;transition:opacity 0.35s;}
+.lang-card:hover{transform:translateY(-5px) scale(1.03);border-color:rgba(201,168,76,0.42);box-shadow:0 0 42px rgba(139,26,26,0.25),0 12px 32px rgba(0,0,0,0.5),inset 0 1px 0 rgba(201,168,76,0.18);}
+.lang-card:hover::after{opacity:1;}
+.lang-card:active{transform:scale(0.97);}
+.lang-flag{font-size:2.2rem;filter:drop-shadow(0 2px 8px rgba(0,0,0,0.4));}
+.lang-name{font-family:'Cinzel',serif;font-size:1rem;font-weight:700;color:var(--goldl);letter-spacing:0.05em;}
+.lang-native{font-size:0.78rem;color:var(--muted);}
+.lang-sub{font-size:0.58rem;color:rgba(201,168,76,0.5);letter-spacing:0.06em;font-family:'Cinzel',serif;}
+
+/* ═══ RULES SCREEN ═══ */
+#rulesScreen{align-items:center;justify-content:center;padding:1.2rem;}
+.rules-card{background:rgba(8,4,18,0.72);border:1px solid rgba(201,168,76,0.18);border-radius:20px;padding:1.3rem;max-width:420px;width:100%;backdrop-filter:blur(18px);box-shadow:0 8px 38px rgba(0,0,0,0.5),inset 0 1px 0 rgba(201,168,76,0.08);}
+.rules-ttl{font-family:'Cinzel',serif;font-size:1rem;color:var(--goldl);text-align:center;margin-bottom:1rem;display:flex;align-items:center;justify-content:center;gap:0.45rem;}
+.rule-item{display:flex;align-items:flex-start;gap:0.65rem;padding:0.58rem 0;border-bottom:1px solid rgba(201,168,76,0.07);}
+.rule-item:last-child{border-bottom:none;}
+.rule-ico{font-size:1.1rem;flex-shrink:0;margin-top:0.04rem;}
+.rule-txt{font-size:0.8rem;color:var(--txt);line-height:1.5;}
+.rule-txt strong{color:var(--goldl);display:block;font-size:0.7rem;margin-bottom:0.05rem;font-family:'Cinzel',serif;letter-spacing:0.05em;}
+
+/* ═══ DIFFICULTY SCREEN ═══ */
+#diffScreen{align-items:center;justify-content:center;padding:1.4rem 1.1rem;}
+.diff-wrap{max-width:440px;width:100%;display:flex;flex-direction:column;align-items:center;}
+.diff-ttl{font-family:'Cinzel',serif;font-size:1.05rem;color:var(--goldl);text-align:center;margin-bottom:0.22rem;display:flex;align-items:center;justify-content:center;gap:0.45rem;}
+.diff-sub{font-size:0.7rem;color:var(--muted);text-align:center;margin-bottom:1rem;opacity:0.8;line-height:1.5;}
+.diff-cards{display:flex;flex-direction:column;gap:0.7rem;width:100%;}
+.diff-card{position:relative;border-radius:16px;padding:0.95rem 1rem;cursor:pointer;display:flex;align-items:center;gap:0.85rem;overflow:hidden;transition:transform 0.3s cubic-bezier(0.34,1.3,0.64,1),box-shadow 0.3s;border:1px solid transparent;}
+.diff-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1.5px;opacity:0.7;}
+.diff-card:hover{transform:translateY(-4px) scale(1.012);}
+.diff-card:active{transform:scale(0.97);}
+.diff-easy{background:linear-gradient(135deg,rgba(46,168,110,0.09),rgba(8,4,18,0.62));border-color:rgba(46,168,110,0.28);}
+.diff-easy::before{background:linear-gradient(90deg,transparent,rgba(46,168,110,0.55),transparent);}
+.diff-easy:hover{box-shadow:0 12px 38px rgba(0,0,0,0.5),0 0 26px rgba(46,168,110,0.14);}
+.diff-med{background:linear-gradient(135deg,rgba(201,168,76,0.09),rgba(8,4,18,0.62));border-color:rgba(201,168,76,0.28);}
+.diff-med::before{background:linear-gradient(90deg,transparent,rgba(201,168,76,0.55),transparent);}
+.diff-med:hover{box-shadow:0 12px 38px rgba(0,0,0,0.5),0 0 26px rgba(201,168,76,0.14);}
+.diff-hard{background:linear-gradient(135deg,rgba(139,26,26,0.12),rgba(8,4,18,0.62));border-color:rgba(139,26,26,0.32);}
+.diff-hard::before{background:linear-gradient(90deg,transparent,rgba(139,26,26,0.6),transparent);}
+.diff-hard:hover{box-shadow:0 12px 38px rgba(0,0,0,0.5),0 0 26px rgba(139,26,26,0.18);}
+.diff-emoji{font-size:1.9rem;flex-shrink:0;position:relative;z-index:1;}
+.diff-info{flex:1;position:relative;z-index:1;}
+.diff-name{font-family:'Cinzel',serif;font-size:0.9rem;font-weight:700;letter-spacing:0.06em;margin-bottom:0.12rem;}
+.diff-easy .diff-name{color:#5df0a0;}.diff-med .diff-name{color:var(--goldl);}.diff-hard .diff-name{color:#e87070;}
+.diff-rule{font-size:0.7rem;color:var(--muted);line-height:1.38;}
+.diff-rule strong{display:block;font-size:0.63rem;}
+.diff-easy .diff-rule strong{color:#5df0a0;}.diff-med .diff-rule strong{color:var(--goldl);}.diff-hard .diff-rule strong{color:#e87070;}
+.diff-tag{position:relative;z-index:1;padding:0.22rem 0.6rem;border-radius:18px;font-family:'Cinzel',serif;font-size:0.56rem;letter-spacing:0.1em;font-weight:700;white-space:nowrap;flex-shrink:0;}
+.diff-easy .diff-tag{background:rgba(46,168,110,0.1);border:1px solid rgba(46,168,110,0.28);color:#5df0a0;}
+.diff-med .diff-tag{background:rgba(201,168,76,0.1);border:1px solid rgba(201,168,76,0.28);color:var(--goldl);}
+.diff-hard .diff-tag{background:rgba(139,26,26,0.12);border:1px solid rgba(139,26,26,0.32);color:#e87070;}
+
+/* ═══ ROUND SCREEN ═══ */
+#roundScreen{align-items:center;justify-content:center;padding:2rem 1.2rem;text-align:center;}
+.round-glow{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:min(80vw,380px);height:min(80vw,380px);border-radius:50%;background:radial-gradient(circle,rgba(139,26,26,0.1) 0%,rgba(201,168,76,0.06) 40%,transparent 70%);animation:rglow 2.5s ease-in-out infinite alternate;pointer-events:none;}
+@keyframes rglow{0%{transform:translate(-50%,-50%) scale(1)}100%{transform:translate(-50%,-50%) scale(1.18)}}
+.round-content{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;}
+.round-icon{font-size:3rem;margin-bottom:0.6rem;animation:iconPulse 2s ease-in-out infinite;}
+@keyframes iconPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
+.round-label{font-family:'Cinzel',serif;font-size:0.65rem;letter-spacing:0.35em;color:var(--muted);text-transform:uppercase;margin-bottom:0.22rem;}
+.round-title{font-family:'Cinzel',serif;font-size:clamp(1.3rem,4.5vw,2.2rem);font-weight:900;background:linear-gradient(135deg,var(--goldl),#fff8e0,var(--gold),var(--goldd));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:0.35rem;}
+.round-msg{font-size:0.88rem;color:var(--muted);line-height:1.55;max-width:300px;margin-bottom:1rem;}
+.round-score-row{display:flex;gap:0.85rem;margin-bottom:1rem;}
+.r-stat{background:rgba(12,6,24,0.4);border:1px solid rgba(201,168,76,0.14);border-radius:12px;padding:0.65rem 0.9rem;text-align:center;min-width:70px;}
+.r-stat-val{font-family:'Cinzel',serif;font-size:1.2rem;font-weight:700;color:var(--goldl);}
+.r-stat-lbl{font-size:0.58rem;color:var(--muted);margin-top:0.05rem;}
+.round-quote{font-family:'EB Garamond',serif;font-style:italic;font-size:0.82rem;color:var(--muted);opacity:0.75;max-width:280px;margin-bottom:1rem;line-height:1.6;}
+
+/* ═══ QUIZ SCREEN ═══ */
+#quizScreen{flex-direction:column;overflow:hidden;}
+.q-topbar{display:flex;align-items:center;justify-content:space-between;padding:0.5rem 0.8rem;background:rgba(4,2,12,0.95);backdrop-filter:blur(18px);border-bottom:1px solid rgba(201,168,76,0.08);flex-shrink:0;}
+.tb-score{display:flex;align-items:center;gap:0.24rem;font-family:'Cinzel',serif;font-size:0.72rem;color:var(--goldl);}
+.score-badge{background:rgba(139,26,26,0.18);border:1px solid rgba(201,168,76,0.22);border-radius:18px;padding:0.1rem 0.48rem;font-weight:700;}
+.round-badge{font-size:0.52rem;padding:0.1rem 0.4rem;border-radius:9px;background:rgba(45,16,66,0.5);border:1px solid rgba(100,50,140,0.35);color:#c89aff;font-family:'Cinzel',serif;letter-spacing:0.05em;margin-left:0.2rem;}
+.diff-badge-top{font-size:0.5rem;padding:0.1rem 0.36rem;border-radius:9px;font-family:'Cinzel',serif;letter-spacing:0.05em;margin-left:0.2rem;font-weight:700;}
+.diff-badge-top.easy{background:rgba(46,168,110,0.14);border:1px solid rgba(46,168,110,0.3);color:#5df0a0;}
+.diff-badge-top.med{background:rgba(201,168,76,0.14);border:1px solid rgba(201,168,76,0.3);color:var(--goldl);}
+.diff-badge-top.hard{background:rgba(139,26,26,0.18);border:1px solid rgba(139,26,26,0.35);color:#e87070;}
+.tb-prog{flex:1;margin:0 0.5rem;display:flex;flex-direction:column;align-items:center;gap:0.14rem;}
+.prog-txt{font-size:0.55rem;color:var(--muted);}
+.prog-wrap{width:100%;max-width:150px;height:3px;background:rgba(255,255,255,0.06);border-radius:3px;overflow:hidden;}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--crimson),var(--gold));border-radius:3px;transition:width 0.55s cubic-bezier(0.4,0,0.2,1);}
+.tb-acts{display:flex;gap:0.22rem;}
+.icon-btn{background:rgba(201,168,76,0.06);border:1px solid rgba(201,168,76,0.12);border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:0.78rem;transition:all 0.22s;color:var(--goldl);}
+.icon-btn:hover{background:rgba(201,168,76,0.15);transform:scale(1.1);}
+.hearts-row{display:flex;gap:0.16rem;align-items:center;margin-left:0.18rem;}
+.heart{font-size:0.62rem;transition:all 0.24s;}
+.heart.lost{filter:grayscale(1);opacity:0.22;transform:scale(0.76);}
+.timer-wrap{display:flex;justify-content:center;padding:0.45rem 0 0.2rem;flex-shrink:0;}
+.timer-ring{position:relative;width:62px;height:62px;cursor:ns-resize;user-select:none;-webkit-user-select:none;}
+.timer-ring svg{width:100%;height:100%;transform:rotate(-90deg);}
+.trb{fill:none;stroke:rgba(255,255,255,0.06);stroke-width:5;}
+.trf{fill:none;stroke:var(--gold);stroke-width:5;stroke-linecap:round;stroke-dasharray:220;stroke-dashoffset:0;transition:stroke-dashoffset 0.9s linear,stroke 0.4s;filter:drop-shadow(0 0 5px var(--gold));}
+.timer-disp{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;}
+.t-num{font-family:'Cinzel',serif;font-size:1.05rem;font-weight:700;color:var(--goldl);line-height:1;}
+.t-sec{font-size:0.38rem;color:var(--muted);}
+.q-area{padding:0.25rem 0.8rem 0.5rem;flex:1;display:flex;flex-direction:column;overflow-y:auto;-webkit-overflow-scrolling:touch;}
+.q-badge{font-family:'Cinzel',serif;font-size:0.58rem;color:var(--gold);letter-spacing:0.12em;text-transform:uppercase;margin-bottom:0.45rem;opacity:0.7;}
+.q-card{background:rgba(20,8,8,0.38);border:1px solid rgba(201,168,76,0.11);border-radius:14px;padding:0.85rem;margin-bottom:0.7rem;backdrop-filter:blur(12px);position:relative;overflow:hidden;box-shadow:0 4px 22px rgba(0,0,0,0.3),inset 0 1px 0 rgba(201,168,76,0.06);}
+.q-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1.5px;background:linear-gradient(90deg,transparent,rgba(139,26,26,0.6),var(--gold),rgba(139,26,26,0.6),transparent);opacity:0.5;}
+.q-text{font-size:clamp(0.8rem,2.2vw,0.93rem);font-weight:500;line-height:1.65;color:var(--ivory);}
+.q-anim{animation:qSlide 0.32s cubic-bezier(0.34,1.2,0.64,1);}
+@keyframes qSlide{from{opacity:0;transform:translateX(18px)}to{opacity:1;transform:translateX(0)}}
+.opts{display:flex;flex-direction:column;gap:0.48rem;}
+.opt{position:relative;display:flex;align-items:center;gap:0.6rem;padding:0.68rem 0.82rem;background:rgba(20,8,8,0.25);border:1px solid rgba(201,168,76,0.09);border-radius:11px;cursor:pointer;text-align:left;transition:all 0.22s cubic-bezier(0.4,0,0.2,1);overflow:hidden;width:100%;color:var(--txt);font-family:'Noto Sans Devanagari',sans-serif;font-size:clamp(0.75rem,1.9vw,0.87rem);line-height:1.5;}
+.opt:hover:not(:disabled){border-color:rgba(139,26,26,0.38);transform:translateX(3px);box-shadow:-3px 0 14px rgba(139,26,26,0.1);}
+.opt:disabled{cursor:default;}
+.opt-lbl{width:22px;height:22px;min-width:22px;border-radius:50%;background:rgba(201,168,76,0.08);border:1px solid rgba(201,168,76,0.18);display:flex;align-items:center;justify-content:center;font-family:'Cinzel',serif;font-size:0.62rem;font-weight:700;color:var(--gold);transition:all 0.2s;flex-shrink:0;}
+.opt.correct{background:rgba(46,168,110,0.1);border-color:rgba(46,168,110,0.45);box-shadow:0 0 18px rgba(46,168,110,0.18);animation:correctPulse 0.5s ease;}
+.opt.correct .opt-lbl{background:rgba(46,168,110,0.25);border-color:var(--ok);color:var(--ok);font-size:0.92rem;}
+.opt.correct::after{content:'✅';position:absolute;right:0.85rem;font-size:1.15rem;animation:checkBounce 0.4s cubic-bezier(0.34,1.56,0.64,1);}
+@keyframes correctPulse{0%{transform:scale(1)}30%{transform:scale(1.018)}100%{transform:scale(1)}}
+@keyframes checkBounce{from{transform:scale(0) rotate(-20deg);opacity:0}to{transform:scale(1) rotate(0);opacity:1}}
+.opt.wrong{background:rgba(192,57,43,0.1);border-color:rgba(192,57,43,0.45);animation:shakeWrong 0.44s ease;}
+.opt.wrong .opt-lbl{background:rgba(192,57,43,0.22);border-color:var(--bad);color:var(--bad);font-size:0.92rem;}
+.opt.wrong::after{content:'❌';position:absolute;right:0.85rem;font-size:1.05rem;animation:checkBounce 0.32s cubic-bezier(0.34,1.56,0.64,1);}
+@keyframes shakeWrong{0%,100%{transform:translateX(0)}15%{transform:translateX(-5px)}30%{transform:translateX(5px)}45%{transform:translateX(-4px)}60%{transform:translateX(4px)}75%{transform:translateX(-2px)}}
+.q-bottom{display:flex;justify-content:space-between;align-items:center;padding:0.45rem 0.8rem 0.75rem;gap:0.5rem;flex-shrink:0;}
+.nav-btn{display:flex;align-items:center;gap:0.22rem;padding:0.48rem 0.82rem;border-radius:20px;border:1px solid rgba(201,168,76,0.14);background:rgba(12,6,24,0.32);color:var(--muted);font-family:'Noto Sans Devanagari',sans-serif;font-size:0.68rem;cursor:pointer;transition:all 0.22s;backdrop-filter:blur(6px);}
+.nav-btn:hover{background:rgba(139,26,26,0.12);border-color:rgba(201,168,76,0.26);color:var(--goldl);transform:translateY(-2px);}
+.nav-btn:disabled{opacity:0.22;cursor:default;transform:none;}
+.nxt{background:linear-gradient(135deg,rgba(139,26,26,0.22),rgba(92,15,15,0.3));border-color:rgba(201,168,76,0.3);color:var(--goldl);font-weight:600;}
+.nxt:hover:not(:disabled){background:linear-gradient(135deg,rgba(139,26,26,0.35),rgba(92,15,15,0.42));}
+
+/* ═══ FEEDBACK OVERLAY ═══ */
+.fb-overlay{position:fixed;inset:0;z-index:200;display:none;align-items:center;justify-content:center;padding:1.1rem;background:rgba(0,0,0,0.6);backdrop-filter:blur(8px);}
+.fb-overlay.show{display:flex;}
+.fb-card{width:100%;max-width:450px;background:rgba(4,2,12,0.98);border-radius:18px;overflow:hidden;border:1px solid rgba(201,168,76,0.18);box-shadow:0 24px 60px rgba(0,0,0,0.75),0 0 40px rgba(139,26,26,0.08);animation:mpop 0.32s cubic-bezier(0.34,1.56,0.64,1);}
+@keyframes mpop{from{transform:scale(0.84);opacity:0}to{transform:scale(1);opacity:1}}
+.fb-top{padding:0.85rem 1rem 0.5rem;display:flex;align-items:center;gap:0.6rem;border-bottom:1px solid rgba(255,255,255,0.04);}
+.fb-icon{font-size:1.65rem;}
+.fb-result{font-family:'Cinzel',serif;font-size:0.84rem;font-weight:700;}
+.fb-result.correct{color:var(--ok);}.fb-result.wrong{color:#e87070;}
+.fb-msg{font-size:0.68rem;color:var(--muted);margin-top:0.06rem;}
+.fb-ans{padding:0.58rem 1rem;font-size:0.72rem;color:var(--muted);line-height:1.55;}
+.fb-ans strong{color:var(--goldl);}
+.fb-sandarbh{margin:0 1rem 0.6rem;background:rgba(20,8,8,0.55);border:1px solid rgba(201,168,76,0.15);border-radius:11px;padding:0.6rem 0.82rem;position:relative;overflow:hidden;}
+.fb-sandarbh::before{content:'';position:absolute;top:0;left:0;bottom:0;width:3px;background:linear-gradient(180deg,var(--crimsonl),var(--gold));}
+.fb-sandarbh-label{font-family:'Cinzel',serif;font-size:0.62rem;color:var(--goldl);letter-spacing:0.08em;margin-bottom:0.22rem;display:flex;align-items:center;gap:0.28rem;}
+.fb-sandarbh-text{font-size:0.66rem;color:var(--muted);line-height:1.55;padding-left:0.1rem;}
+.fb-autonext{padding:0.26rem 1rem 0;display:flex;align-items:center;gap:0.42rem;font-size:0.58rem;color:var(--muted);}
+.fb-bar-wrap{flex:1;height:3px;background:rgba(255,255,255,0.07);border-radius:2px;overflow:hidden;}
+.fb-bar{height:100%;background:linear-gradient(90deg,var(--crimson),var(--gold));border-radius:2px;width:100%;}
+.fb-acts{display:flex;gap:0.4rem;padding:0.52rem 1rem 0.82rem;}
+.cont-btn{flex:1;padding:0.5rem;border-radius:10px;border:none;background:linear-gradient(135deg,var(--crimsond),var(--crimson),var(--crimsonl));color:var(--ivory);font-size:0.74rem;font-weight:700;cursor:pointer;transition:all 0.2s;font-family:'Cinzel',serif;letter-spacing:0.04em;}
+.cont-btn:hover{transform:scale(1.02);box-shadow:0 4px 16px rgba(139,26,26,0.35);}
+
+/* ═══ GOLD BTN ═══ */
+.gold-btn{position:relative;padding:0.78rem 2.1rem;font-family:'Cinzel',serif;font-size:0.92rem;font-weight:700;letter-spacing:0.14em;border:none;border-radius:50px;cursor:pointer;overflow:hidden;background:linear-gradient(135deg,var(--goldd),var(--gold),var(--goldl),var(--gold),var(--goldd));background-size:200% 200%;color:#1a0a00;margin-top:0.5rem;box-shadow:0 0 22px rgba(201,168,76,0.36),0 4px 14px rgba(0,0,0,0.38);animation:bb 3s ease-in-out infinite,gs 4s linear infinite;transition:transform 0.2s,box-shadow 0.2s;}
+.gold-btn:hover{transform:translateY(-3px) scale(1.04);}
+.gold-btn:active{transform:scale(0.97);}
+.gold-btn::before{content:'';position:absolute;top:-50%;left:-60%;width:60%;height:200%;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.24),transparent);transform:skewX(-20deg);animation:bs 3s ease-in-out infinite;}
+@keyframes bb{0%,100%{box-shadow:0 0 22px rgba(201,168,76,0.36),0 4px 14px rgba(0,0,0,0.38)}50%{box-shadow:0 0 40px rgba(201,168,76,0.6),0 4px 22px rgba(0,0,0,0.38)}}
+@keyframes gs{0%{background-position:0% 50%}100%{background-position:200% 50%}}
+@keyframes bs{0%{left:-60%}100%{left:120%}}
+.ghost-btn{padding:0.56rem 1.5rem;font-family:'Noto Sans Devanagari',sans-serif;font-size:0.8rem;border:1px solid rgba(201,168,76,0.22);border-radius:50px;background:rgba(201,168,76,0.04);color:var(--goldl);cursor:pointer;transition:all 0.2s;margin-top:0.38rem;}
+.ghost-btn:hover{background:rgba(201,168,76,0.1);border-color:rgba(201,168,76,0.38);}
+
+/* ═══ MENU ═══ */
+.menu-ov{position:fixed;inset:0;z-index:250;background:rgba(0,0,0,0.72);display:none;align-items:flex-end;justify-content:center;backdrop-filter:blur(10px);}
+.menu-ov.show{display:flex;}
+.menu-card{width:100%;max-width:420px;background:rgba(4,2,12,0.98);border-radius:20px 20px 0 0;border-top:1px solid rgba(201,168,76,0.14);padding:1rem;animation:slideUp 0.25s ease;box-shadow:0 -8px 38px rgba(139,26,26,0.06);}
+@keyframes slideUp{from{transform:translateY(100%);opacity:0}to{transform:translateY(0);opacity:1}}
+.menu-ttl{font-family:'Cinzel',serif;color:var(--goldl);text-align:center;margin-bottom:0.7rem;font-size:0.88rem;}
+.menu-item{display:flex;align-items:center;gap:0.58rem;padding:0.68rem 0.72rem;border-radius:11px;cursor:pointer;transition:all 0.2s;color:var(--txt);font-size:0.82rem;margin-bottom:0.26rem;border:1px solid transparent;}
+.menu-item:hover{background:rgba(139,26,26,0.1);border-color:rgba(201,168,76,0.12);}
+
+/* PAUSE */
+.pause-ov{position:fixed;inset:0;z-index:150;display:none;pointer-events:none;}
+.pause-ov.show{display:block;}
+.pause-blur{position:absolute;inset:0;background:rgba(4,2,12,0.55);backdrop-filter:blur(5px);}
+.pause-badge{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-family:'Cinzel',serif;font-size:1.5rem;color:var(--goldl);text-align:center;pointer-events:none;}
+
+/* NAME MODAL */
+.name-ov{position:fixed;inset:0;z-index:400;background:rgba(0,0,0,0.85);display:none;align-items:center;justify-content:center;padding:1rem;backdrop-filter:blur(14px);}
+.name-ov.show{display:flex;}
+.name-card{width:100%;max-width:360px;background:rgba(4,2,12,0.98);border:1px solid rgba(201,168,76,0.22);border-radius:18px;padding:1.4rem;animation:mpop 0.3s cubic-bezier(0.34,1.56,0.64,1);}
+.name-ttl{font-family:'Cinzel',serif;color:var(--goldl);font-size:0.94rem;text-align:center;margin-bottom:0.28rem;}
+.name-sub{font-size:0.68rem;color:var(--muted);text-align:center;margin-bottom:0.82rem;}
+.name-inp{width:100%;background:rgba(20,8,8,0.45);border:1px solid rgba(201,168,76,0.22);border-radius:11px;padding:0.6rem 0.92rem;color:var(--txt);font-family:'Noto Sans Devanagari',sans-serif;font-size:0.86rem;outline:none;margin-bottom:0.6rem;}
+.name-inp:focus{border-color:rgba(201,168,76,0.45);}
+
+/* ═══ RESULT SCREEN ═══ */
+#resultScreen{align-items:center;padding:1.4rem 1.1rem;overflow-y:auto;}
+.res-orn{font-size:2.5rem;margin-bottom:0.26rem;animation:iconPulse 2.5s ease-in-out infinite;}
+.res-ttl{font-family:'Cinzel',serif;font-size:clamp(1.1rem,3.2vw,1.85rem);font-weight:900;background:linear-gradient(135deg,var(--goldl),var(--gold),var(--goldd));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:0.14rem;}
+.res-sub{color:var(--muted);font-size:0.74rem;margin-bottom:0.85rem;}
+.score-circle{width:112px;height:112px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;margin:0 auto 0.85rem;position:relative;background:rgba(12,6,24,0.35);}
+.score-num{font-family:'Cinzel',serif;font-size:1.85rem;font-weight:900;color:var(--goldl);line-height:1;}
+.score-den{font-size:0.64rem;color:var(--muted);}
+.score-pct{font-size:0.74rem;color:var(--gold);margin-top:0.07rem;}
+.res-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:0.48rem;width:100%;max-width:320px;margin:0 auto 0.85rem;}
+.stat-box{background:rgba(12,6,24,0.22);border:1px solid rgba(201,168,76,0.09);border-radius:11px;padding:0.58rem 0.26rem;text-align:center;}
+.stat-ico{font-size:0.88rem;}
+.stat-val{font-family:'Cinzel',serif;font-size:1.1rem;font-weight:700;color:var(--goldl);}
+.stat-lbl{font-size:0.54rem;color:var(--muted);margin-top:0.05rem;}
+.res-msg{background:rgba(12,6,24,0.22);border:1px solid rgba(201,168,76,0.09);border-radius:12px;padding:0.72rem 0.82rem;max-width:320px;width:100%;margin:0 auto 0.85rem;font-family:'EB Garamond',serif;font-style:italic;color:var(--muted);font-size:0.82rem;line-height:1.55;}
+.res-msg strong{color:var(--goldl);display:block;margin-bottom:0.12rem;font-style:normal;}
+.res-acts{display:flex;flex-direction:column;gap:0.42rem;width:100%;max-width:280px;margin:0 auto 0.82rem;}
+.restart-btn{padding:0.75rem;border-radius:12px;border:none;background:linear-gradient(135deg,var(--crimsond),var(--crimson),var(--crimsonl));color:var(--ivory);font-family:'Cinzel',serif;font-size:0.84rem;font-weight:700;cursor:pointer;transition:all 0.22s;}
+.restart-btn:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(139,26,26,0.35);}
+.home-btn-res{padding:0.6rem;border-radius:12px;border:1px solid rgba(201,168,76,0.18);background:rgba(201,168,76,0.04);color:var(--goldl);font-size:0.78rem;cursor:pointer;transition:all 0.2s;}
+.home-btn-res:hover{background:rgba(201,168,76,0.1);}
+.hist-sec{width:100%;max-width:320px;margin:0 auto;text-align:left;}
+.hist-ttl{font-family:'Cinzel',serif;font-size:0.65rem;color:var(--gold);letter-spacing:0.1em;margin-bottom:0.36rem;}
+.hist-item{display:flex;justify-content:space-between;align-items:center;padding:0.36rem 0.6rem;background:rgba(12,6,24,0.18);border-radius:8px;font-size:0.63rem;color:var(--muted);margin-bottom:0.22rem;}
+.hist-item .hs{color:var(--goldl);font-weight:600;}
+
+/* GAME OVER */
+.gameover-ov{position:fixed;inset:0;z-index:500;display:none;align-items:center;justify-content:center;padding:1rem;background:rgba(0,0,0,0.9);backdrop-filter:blur(16px);}
+.gameover-ov.show{display:flex;}
+.gameover-card{width:100%;max-width:350px;background:rgba(6,2,14,0.99);border:1px solid rgba(139,26,26,0.32);border-radius:20px;padding:1.6rem 1.2rem;text-align:center;animation:mpop 0.3s cubic-bezier(0.34,1.56,0.64,1);}
+.go-icon{font-size:2.7rem;margin-bottom:0.38rem;}
+.go-title{font-family:'Cinzel',serif;font-size:1.18rem;font-weight:900;color:#e87070;margin-bottom:0.22rem;}
+.go-sub{font-size:0.75rem;color:var(--muted);margin-bottom:0.48rem;line-height:1.5;}
+.go-score{font-family:'Cinzel',serif;font-size:1.6rem;color:var(--goldl);margin-bottom:0.22rem;}
+.go-msg{font-family:'EB Garamond',serif;font-style:italic;font-size:0.76rem;color:var(--muted);margin-bottom:0.95rem;line-height:1.5;}
+.go-acts{display:flex;flex-direction:column;gap:0.4rem;}
+
+/* TOAST */
+.toast{position:fixed;top:56px;left:50%;transform:translateX(-50%) translateY(-14px);z-index:600;background:rgba(4,2,12,0.97);border:1px solid rgba(201,168,76,0.22);border-radius:16px;padding:0.42rem 0.88rem;font-size:0.73rem;color:var(--goldl);white-space:nowrap;opacity:0;transition:all 0.28s cubic-bezier(0.34,1.56,0.64,1);backdrop-filter:blur(12px);pointer-events:none;max-width:88vw;text-align:center;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+/* LOADING */
+.loading-ov{position:fixed;inset:0;z-index:600;background:rgba(0,0,0,0.8);display:none;align-items:center;justify-content:center;backdrop-filter:blur(12px);}
+.loading-ov.show{display:flex;}
+.loading-card{background:rgba(4,2,12,0.98);border:1px solid rgba(201,168,76,0.22);border-radius:18px;padding:1.8rem 2rem;text-align:center;animation:mpop 0.28s cubic-bezier(0.34,1.56,0.64,1);}
+.loading-spin{font-size:2.1rem;animation:spin 1s linear infinite;margin-bottom:0.55rem;}
+@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+.loading-txt{font-family:'Cinzel',serif;font-size:0.86rem;color:var(--goldl);}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:2px;}::-webkit-scrollbar-track{background:transparent;}::-webkit-scrollbar-thumb{background:rgba(201,168,76,0.18);border-radius:2px;}
+
+/* RESPONSIVE */
+@media(max-width:380px){
+  .lang-title{font-size:1.1rem;}.opt{font-size:0.72rem;padding:0.62rem 0.7rem;}
+  .timer-ring{width:55px;height:55px;}.gold-btn{padding:0.7rem 1.6rem;font-size:0.86rem;}
+}
+@media(min-width:600px){
+  #quizScreen{max-width:540px;margin:0 auto;width:100%;}
+  .opts{gap:0.62rem;}
+}
+@media(max-height:620px){
+  .timer-ring{width:54px;height:54px;}
+}
+</style>
+</head>
+<body>
+<canvas id="bgCanvas"></canvas>
+<canvas id="spkCanvas"></canvas>
+<div class="fog1"></div>
+<div class="fog2"></div>
+<div id="transOverlay"></div>
+
+<!-- ═══════════ LANGUAGE SCREEN ═══════════ -->
+<div id="langScreen" class="screen active">
+  <div style="display:flex;align-items:center;justify-content:center;flex:1;padding:1.5rem 1.2rem;">
+  <div class="lang-wrap fade-in">
+    <div class="iskcon-badge"><div class="logo">✦ ISKCON VRINDAVAN ✦</div><div class="sub">NBD — New Bhakta Department</div></div>
+    <div class="lang-ornament">🪷</div>
+    <div class="lang-title">Bhagavad-Gita<br>Chapter 2 Quiz</div>
+    <div class="lang-ch">गीता का सार — Contents of the Gita Summarized</div>
+    <div class="lang-divider"><span>✦</span></div>
+    <div style="font-family:'Cinzel',serif;font-size:0.72rem;color:var(--muted);text-align:center;letter-spacing:0.1em;text-transform:uppercase;">Choose Your Language / भाषा चुनें</div>
+    <div class="lang-cards">
+      <div class="lang-card ripple-host" id="langEn">
+        <div class="lang-flag">🇬🇧</div>
+        <div class="lang-name">English</div>
+        <div class="lang-native">English</div>
+        <div class="lang-sub">CONTINUE →</div>
+      </div>
+      <div class="lang-card ripple-host" id="langHi">
+        <div class="lang-flag">🇮🇳</div>
+        <div class="lang-name">हिंदी</div>
+        <div class="lang-native">Hindi</div>
+        <div class="lang-sub">आगे बढ़ें →</div>
+      </div>
+    </div>
+  </div>
+  </div>
+</div>
+
+<!-- ═══════════ RULES SCREEN ═══════════ -->
+<div id="rulesScreen" class="screen">
+  <div style="display:flex;align-items:center;justify-content:center;flex:1;padding:1.2rem;">
+  <div class="rules-card fade-in">
+    <div class="iskcon-badge" style="margin-bottom:0.65rem;"><div class="logo">✦ ISKCON VRINDAVAN ✦</div><div class="sub">NBD — New Bhakta Department</div></div>
+    <div class="rules-ttl" id="rulesTtl">📜 Quiz Rules</div>
+    <div id="rulesContent"></div>
+    <div style="margin-top:0.85rem;display:flex;flex-direction:column;gap:0.38rem;">
+      <button class="gold-btn ripple-host" id="rulesNextBtn" style="margin-top:0;">Proceed →</button>
+      <button class="ghost-btn ripple-host" id="rulesBackBtn">← Back</button>
+    </div>
+  </div>
+  </div>
+</div>
+
+<!-- ═══════════ DIFFICULTY SCREEN ═══════════ -->
+<div id="diffScreen" class="screen">
+  <div style="display:flex;align-items:center;justify-content:center;flex:1;padding:1.3rem 1.1rem;">
+  <div class="diff-wrap fade-in">
+    <div class="iskcon-badge" style="margin-bottom:0.6rem;"><div class="logo">✦ ISKCON VRINDAVAN ✦</div><div class="sub">NBD — New Bhakta Department</div></div>
+    <div class="diff-ttl" id="diffTtl">⚔️ Choose Difficulty</div>
+    <div class="diff-sub" id="diffSub">Choose your level. Exceeding mistake limit ends the game.</div>
+    <div class="diff-cards">
+      <div class="diff-card diff-easy ripple-host" id="dEasy">
+        <div class="diff-emoji">🟢</div>
+        <div class="diff-info"><div class="diff-name" id="dEasyName">EASY</div><div class="diff-rule" id="dEasyRule"><strong>✅ 5 mistakes allowed</strong>For new students.</div></div>
+        <div class="diff-tag" id="dEasyTag">BEGINNER</div>
+      </div>
+      <div class="diff-card diff-med ripple-host" id="dMed">
+        <div class="diff-emoji">🟡</div>
+        <div class="diff-info"><div class="diff-name" id="dMedName">MEDIUM</div><div class="diff-rule" id="dMedRule"><strong>✅ 2 mistakes allowed</strong>For experienced seekers.</div></div>
+        <div class="diff-tag" id="dMedTag">SADHAK</div>
+      </div>
+      <div class="diff-card diff-hard ripple-host" id="dHard">
+        <div class="diff-emoji">🔴</div>
+        <div class="diff-info"><div class="diff-name" id="dHardName">HARD</div><div class="diff-rule" id="dHardRule"><strong>✅ Only 1 mistake allowed</strong>Supreme test of wisdom.</div></div>
+        <div class="diff-tag" id="dHardTag">VAISHNAV</div>
+      </div>
+    </div>
+    <div style="margin-top:0.85rem;"><button class="ghost-btn ripple-host" id="diffBackBtn" style="width:100%;" id="diffBackBtn">← Back to Rules</button></div>
+  </div>
+  </div>
+</div>
+
+<!-- ═══════════ ROUND SCREEN ═══════════ -->
+<div id="roundScreen" class="screen">
+  <div class="round-glow"></div>
+  <div class="round-content">
+    <div class="iskcon-badge" style="margin-bottom:0.38rem;"><div class="logo">✦ ISKCON VRINDAVAN ✦</div><div class="sub">NBD — New Bhakta Department</div></div>
+    <div class="round-icon" id="roundIcon">🏆</div>
+    <div class="round-label" id="roundLabel">ROUND COMPLETE</div>
+    <div class="round-title" id="roundTitle">Round 1 Complete!</div>
+    <div class="round-msg" id="roundMsg">Haribol!</div>
+    <div class="round-score-row">
+      <div class="r-stat"><div class="r-stat-val" id="rStatScore">0</div><div class="r-stat-lbl" id="rStatScoreLbl">Score</div></div>
+      <div class="r-stat"><div class="r-stat-val" id="rStatCorrect">0</div><div class="r-stat-lbl" id="rStatCorrectLbl">Correct</div></div>
+      <div class="r-stat"><div class="r-stat-val" id="rStatPct">0%</div><div class="r-stat-lbl" id="rStatPctLbl">Accuracy</div></div>
+    </div>
+    <div class="round-quote" id="roundQuote">"Steadiness in devotion is the key to success ✨"</div>
+    <button class="gold-btn ripple-host" id="roundContinueBtn" style="margin-top:0;">Continue →</button>
+  </div>
+</div>
+
+<!-- ═══════════ QUIZ SCREEN ═══════════ -->
+<div id="quizScreen" class="screen">
+  <div class="q-topbar">
+    <div class="tb-score">
+      <span>🌟</span><span class="score-badge" id="liveScore">0</span>
+      <span class="round-badge" id="roundBadgeTop">R1</span>
+      <span class="diff-badge-top easy" id="diffBadgeTop">Easy</span>
+      <div class="hearts-row" id="heartsRow"></div>
+    </div>
+    <div class="tb-prog">
+      <div class="prog-txt" id="progTxt">Q 1/50</div>
+      <div class="prog-wrap"><div class="prog-fill" id="progFill" style="width:2%"></div></div>
+    </div>
+    <div class="tb-acts">
+      <div class="icon-btn ripple-host" id="pauseBtn">⏸</div>
+      <div class="icon-btn ripple-host" id="menuBtn">☰</div>
+    </div>
+  </div>
+  <div class="timer-wrap">
+    <div class="timer-ring" id="timerRing">
+      <svg viewBox="0 0 80 80"><circle class="trb" cx="40" cy="40" r="35"/><circle class="trf" id="timerArc" cx="40" cy="40" r="35"/></svg>
+      <div class="timer-disp"><div class="t-num" id="timerNum">59</div><div class="t-sec">sec</div></div>
+    </div>
+  </div>
+  <div class="q-area">
+    <div class="q-badge" id="qBadge">Question 1 of 50</div>
+    <div class="q-card" id="qCard"><div class="q-text" id="qText">Loading...</div></div>
+    <div class="opts" id="optsGrid"></div>
+  </div>
+  <div class="q-bottom">
+    <button class="nav-btn ripple-host" id="prevBtn">◀ Prev</button>
+    <button class="nav-btn ripple-host" id="skipBtn">Skip ▶</button>
+    <button class="nav-btn nxt ripple-host" id="nextBtn" style="display:none">Next ▶</button>
+  </div>
+</div>
+
+<!-- ═══════════ RESULT SCREEN ═══════════ -->
+<div id="resultScreen" class="screen">
+  <div style="display:flex;align-items:center;justify-content:center;flex:1;">
+  <div style="display:flex;flex-direction:column;align-items:center;padding:1.4rem 1.1rem;width:100%;max-width:420px;">
+    <div class="iskcon-badge" style="margin-bottom:0.3rem;"><div class="logo">✦ ISKCON VRINDAVAN ✦</div><div class="sub">NBD — New Bhakta Department</div></div>
+    <div class="res-orn">🏆</div>
+    <div class="res-ttl" id="resTtl">Quiz Complete!</div>
+    <div class="res-sub" id="resSub">Jai Shri Krishna! You completed the quiz.</div>
+    <div class="score-circle" id="scoreCircle"><div class="score-num" id="finalScore">0</div><div class="score-den">/ 500</div><div class="score-pct" id="finalPct">0%</div></div>
+    <div class="res-stats">
+      <div class="stat-box"><div class="stat-ico">✅</div><div class="stat-val" id="stC">0</div><div class="stat-lbl" id="stCLbl">Correct</div></div>
+      <div class="stat-box"><div class="stat-ico">❌</div><div class="stat-val" id="stW">0</div><div class="stat-lbl" id="stWLbl">Wrong</div></div>
+      <div class="stat-box"><div class="stat-ico">⏭️</div><div class="stat-val" id="stS">0</div><div class="stat-lbl" id="stSLbl">Skipped</div></div>
+    </div>
+    <div class="res-msg"><strong id="resGrade">🌸 Jai Shri Krishna!</strong><span id="resVerdict">You performed very well.</span></div>
+    <div class="res-acts">
+      <button class="restart-btn ripple-host" id="restartBtn">🔄 Play Again</button>
+      <button class="home-btn-res ripple-host" id="homeBtn2">🏠 Go Home</button>
+    </div>
+    <div class="hist-sec"><div class="hist-ttl" id="histTtl">📜 Previous Attempts</div><div id="histList"></div></div>
+  </div>
+  </div>
+</div>
+
+<!-- FEEDBACK -->
+<div class="fb-overlay" id="fbOverlay">
+  <div class="fb-card">
+    <div class="fb-top"><div class="fb-icon" id="fbIcon">🌸</div><div><div class="fb-result" id="fbResult">Correct!</div><div class="fb-msg" id="fbMsg">Hare Krishna!</div></div></div>
+    <div class="fb-ans" id="fbAns"></div>
+    <div class="fb-sandarbh" id="fbSandarbh">
+      <div class="fb-sandarbh-label">📖 <span id="refLabel">Reference</span></div>
+      <div class="fb-sandarbh-text" id="fbSandarbhText"></div>
+    </div>
+    <div class="fb-autonext"><span id="fbAutoTxt">5s until next...</span><div class="fb-bar-wrap"><div class="fb-bar" id="fbBar"></div></div></div>
+    <div class="fb-acts"><button class="cont-btn ripple-host" id="contBtn">Continue →</button></div>
+  </div>
+</div>
+
+<!-- MENU -->
+<div class="menu-ov" id="menuOv">
+  <div class="menu-card">
+    <div class="menu-ttl">🌺 Menu</div>
+    <div class="menu-item ripple-host" id="mResume"><span>▶️</span><span id="mResumeLabel">Resume Quiz</span></div>
+    <div class="menu-item ripple-host" id="mHome"><span>🏠</span><span id="mHomeLabel">Home</span></div>
+    <div class="menu-item ripple-host" id="mRestart"><span>🔄</span><span id="mRestartLabel">Restart</span></div>
+    <div class="menu-item ripple-host" id="mResult"><span>📊</span><span id="mResultLabel">View Results</span></div>
+  </div>
+</div>
+
+<!-- PAUSE -->
+<div class="pause-ov" id="pauseOv"><div class="pause-blur"></div><div class="pause-badge">⏸<br><span style="font-size:0.68rem;opacity:0.55" id="pauseLabel">Paused</span></div></div>
+
+<!-- NAME MODAL -->
+<div class="name-ov" id="nameOv">
+  <div class="name-card">
+    <div class="name-ttl" id="nameTitle">🌸 Your Name</div>
+    <div class="name-sub" id="nameSub">Enter your name to begin</div>
+    <input class="name-inp" id="nameInp" type="text" placeholder="Enter your name..." maxlength="24">
+    <button class="gold-btn ripple-host" id="nameSaveBtn" style="width:100%;margin-top:0;">Save & Continue →</button>
+  </div>
+</div>
+
+<!-- GAME OVER -->
+<div class="gameover-ov" id="gameoverOv">
+  <div class="gameover-card">
+    <div class="go-icon">💔</div>
+    <div class="go-title" id="goTitle">Game Over!</div>
+    <div class="go-sub" id="goSub">Your mistake limit was exceeded.</div>
+    <div class="go-score" id="goScore">0 pts</div>
+    <div class="go-msg" id="goMsg">"Falling and rising are both part of devotion. 🙏"</div>
+    <div class="go-acts">
+      <button class="gold-btn ripple-host" id="goRestartBtn" style="margin-top:0;width:100%;">🔄 Play Again</button>
+      <button class="ghost-btn ripple-host" id="goHomeBtn" style="width:100%;">🏠 Home</button>
+    </div>
+  </div>
+</div>
+
+<!-- LOADING -->
+<div class="loading-ov" id="loadingOv">
+  <div class="loading-card">
+    <div class="loading-spin">🪷</div>
+    <div class="loading-txt" id="loadingTxt">Loading Quiz...</div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ══════════════════════════════════════
+// BILINGUAL STRINGS
+// ══════════════════════════════════════
+var LANG='en';
+var STR={
+  en:{
+    rulesTitle:'📜 Quiz Rules',
+    rulesItems:[
+      {ico:'⏱️',strong:'Time Limit',txt:'You have 59 seconds for each question.'},
+      {ico:'🎯',strong:'Scoring',txt:'Correct answer: +10 points. No deduction for wrong/skipped.'},
+      {ico:'🔄',strong:'3 Rounds',txt:'Round 1 (Q1–10), Round 2 (Q11–30), Final Round (Q31–50).'},
+      {ico:'💔',strong:'Difficulty',txt:'Easy: 5 mistakes. Medium: 2 mistakes. Hard: only 1 mistake.'},
+      {ico:'📖',strong:'References',txt:'Each answer shows a Bhagavad-Gita reference in the feedback.'},
+      {ico:'🙏',strong:'Play with Devotion',txt:'Dedicate this Quiz to Lord Sri Krishna.'}
+    ],
+    rulesNext:'Proceed →',rulesBack:'← Back',
+    diffTtl:'⚔️ Choose Difficulty',
+    diffSub:'Choose according to your level of study.\nExceeding mistake limit ends the game.',
+    dEasyName:'EASY',dEasyRule:'For new students.',dEasyTag:'BEGINNER',
+    dMedName:'MEDIUM',dMedRule:'For experienced seekers.',dMedTag:'SADHAK',
+    dHardName:'HARD',dHardRule:'Supreme test of wisdom.',dHardTag:'VAISHNAV',
+    diffBack:'← Back to Rules',
+    progLabel:'Q ',progOf:'/50',
+    qBadgeOf:' of 50',
+    prevBtn:'◀ Prev',skipBtn:'Skip ▶',nextBtn:'Next ▶',
+    refLabel:'Reference',
+    fbAutoSuffix:'s until next...',
+    contBtn:'Continue →',
+    rStatScoreLbl:'Score',rStatCorrectLbl:'Correct',rStatPctLbl:'Accuracy',
+    roundQuoteWin:'Excellent devotion in this Round! 🏆',
+    roundQuoteLow:'Keep studying the Gita. You can do better! 📖',
+    r2StartTitle:'Round 2 Starting!',r2StartMsg:'Haribol! Round 1 complete. More challenging questions ahead!',r2ContinueBtn:'Begin Round 2 →',
+    finalTitle:'Final Round!',finalMsg:'This is the final challenge! Krishna is with you!',finalBtn:'Final Round 👑',
+    completeTitle:'Complete!',completeMsg:'You answered all 50 questions. Jai Shri Krishna!',completeBtn:'View Results →',
+    pauseLabel:'Paused',
+    menuResume:'Resume Quiz',menuHome:'Home',menuRestart:'Restart',menuResult:'View Results',
+    nameTitle:'🌸 Your Name',nameSub:'Enter your name to begin',namePlaceholder:'Enter your name...',nameSave:'Save & Continue →',
+    goTitle:'Game Over!',goScoreSuffix:' pts',goMsg:'"Falling and rising — both are part of the devotional path. Try again! 🙏"',
+    resTtl:'Quiz Complete!',resSub:'Jai Shri Krishna! You completed the quiz.',
+    stCLbl:'Correct',stWLbl:'Wrong',stSSLbl:'Skipped',
+    histTtl:'📜 Previous Attempts',histEmpty:'No attempts yet',
+    restartBtn:'🔄 Play Again',homeBtn:'🏠 Go Home',
+    loadingTxt:'Loading Quiz...',
+    gradeHigh:'🌟 Supreme Scholar!',gradeHighV:'A profound knower of Bhagavad-Gita.',
+    gradeGood:'🌺 Excellent Devotee!',gradeGoodV:'Outstanding performance!',
+    gradeMed:'🙏 Progressive Seeker!',gradeMedV:'Good effort! Study the Gita more.',
+    gradeLow:'🌸 Curious Devotee!',gradeLowV:'Good try! Read again.',
+    gradeVeryLow:'📖 Beginning Traveller!',gradeVeryLowV:'Read the Gita and try again.',
+    qCorrect:['Hare Krishna! Krishna is pleased ✨','Haribol! Progress in devotion 🌸','Jai Shri Krishna! Excellent 🙏','Radhe Radhe! Understanding Gita 💛','Sri Krishna is pleased 🌺','Jai Govinda! Wisdom grows 🌟'],
+    qWrong:['Never mind — keep learning 🙏','Krishna is with you 🌸','Mistakes teach the devotee 🌺','Don\'t give up, Hare Krishna! ✨'],
+    mistakeDiff:'In {mode} mode, mistake limit exceeded.',
+    mistakeLabel:'{mode} mode'
+  },
+  hi:{
+    rulesTitle:'📜 Quiz के नियम',
+    rulesItems:[
+      {ico:'⏱️',strong:'समय सीमा',txt:'प्रत्येक प्रश्न के लिए 59 सेकंड का समय है।'},
+      {ico:'🎯',strong:'अंक प्रणाली',txt:'सही उत्तर: +10 अंक। गलत या छोड़ने पर कोई कटौती नहीं।'},
+      {ico:'🔄',strong:'3 Rounds',txt:'Round 1 (Q1–10), Round 2 (Q11–30), Final Round (Q31–50)।'},
+      {ico:'💔',strong:'कठिनाई स्तर',txt:'Easy: 5 गलतियाँ। Medium: 2 गलतियाँ। Hard: केवल 1 गलती।'},
+      {ico:'📖',strong:'संदर्भ',txt:'प्रत्येक उत्तर के साथ भगवद-गीता का संदर्भ feedback में दिखेगा।'},
+      {ico:'🙏',strong:'भक्ति भाव से खेलें',txt:'इस Quiz को भगवान श्री कृष्ण की सेवा में अर्पित करें।'}
+    ],
+    rulesNext:'आगे बढ़ें →',rulesBack:'← वापस',
+    diffTtl:'⚔️ कठिनाई चुनें',
+    diffSub:'अपनी भक्ति शक्ति के अनुसार स्तर चुनें।\nगलतियों की सीमा पार होने पर खेल समाप्त।',
+    dEasyName:'EASY — सरल',dEasyRule:'नए भक्तों के लिए।',dEasyTag:'BEGINNER',
+    dMedName:'MEDIUM — मध्यम',dMedRule:'अनुभवी साधकों के लिए।',dMedTag:'SADHAK',
+    dHardName:'HARD — कठिन',dHardRule:'परम ज्ञानियों की परीक्षा।',dHardTag:'VAISHNAV',
+    diffBack:'← वापस नियम',
+    progLabel:'प्रश्न ',progOf:'/50',
+    qBadgeOf:' — 50 में से',
+    prevBtn:'◀ पिछला',skipBtn:'छोड़ें ▶',nextBtn:'अगला ▶',
+    refLabel:'संदर्भ / Reference',
+    fbAutoSuffix:'s में अगला...',
+    contBtn:'जारी रखें →',
+    rStatScoreLbl:'अंक',rStatCorrectLbl:'सही',rStatPctLbl:'सफलता',
+    roundQuoteWin:'हरिबोल! इस Round में शानदार! 🏆',
+    roundQuoteLow:'गीता का और अध्ययन करें 📖',
+    r2StartTitle:'Round 2 शुरू!',r2StartMsg:'हरिबोल! Round 1 पूरा हुआ। अब और कठिन प्रश्न!',r2ContinueBtn:'Round 2 शुरू करें →',
+    finalTitle:'Final Round!',finalMsg:'यह अंतिम चुनौती है! कृष्ण आपके साथ हैं!',finalBtn:'Final Round 👑',
+    completeTitle:'पूर्ण हुआ!',completeMsg:'आपने सभी 50 प्रश्न पूरे किए। जय श्री कृष्ण!',completeBtn:'परिणाम देखें →',
+    pauseLabel:'रुका हुआ है',
+    menuResume:'Quiz जारी रखें',menuHome:'होम',menuRestart:'पुनः आरंभ',menuResult:'परिणाम देखें',
+    nameTitle:'🌸 आपका नाम',nameSub:'आपका नाम दर्ज करें',namePlaceholder:'आपका नाम लिखें...',nameSave:'सहेजें और आगे बढ़ें →',
+    goTitle:'खेल समाप्त!',goScoreSuffix:' अंक',goMsg:'"भक्ति मार्ग पर गिरना और उठना दोनों हैं। पुनः प्रयास करें! 🙏"',
+    resTtl:'Quiz Complete!',resSub:'जय श्री कृष्ण! आपने पूर्ण किया',
+    stCLbl:'सही',stWLbl:'गलत',stSSLbl:'छोड़े',
+    histTtl:'📜 पिछले प्रयास',histEmpty:'अभी तक कोई प्रयास नहीं',
+    restartBtn:'🔄 पुनः आरंभ करें',homeBtn:'🏠 होम पर जाएं',
+    loadingTxt:'Quiz लोड हो रहा है...',
+    gradeHigh:'🌟 परम ज्ञानी!',gradeHighV:'भगवद-गीता के गहन ज्ञाता हैं आप।',
+    gradeGood:'🌺 उत्कृष्ट भक्त!',gradeGoodV:'बहुत अच्छा प्रदर्शन!',
+    gradeMed:'🙏 प्रगतिशील साधक!',gradeMedV:'अच्छा प्रयास! गीता का और अध्ययन करें।',
+    gradeLow:'🌸 जिज्ञासु भक्त!',gradeLowV:'प्रयास अच्छा था। पुनः पढ़ें।',
+    gradeVeryLow:'📖 शुरुआती यात्री!',gradeVeryLowV:'गीता पढ़ें और पुनः प्रयास करें।',
+    qCorrect:['हरे कृष्ण! कृष्ण प्रसन्न हैं ✨','हरिबोल! भक्ति में प्रगति 🌸','जय श्री कृष्ण! बहुत अच्छा 🙏','राधे राधे! गीता समझ आ रही है 💛','श्री कृष्ण प्रसन्न हुए 🌺'],
+    qWrong:['कोई बात नहीं — सीखते रहिए 🙏','कृष्ण आपके साथ हैं 🌸','गलती से ही सीखते हैं भक्त 🌺'],
+    mistakeDiff:'{mode} मोड में गलत उत्तर की सीमा पार हो गई।',
+    mistakeLabel:'{mode} मोड'
+  }
+};
+
+function t(key,args){
+  var s=STR[LANG];
+  var v=s[key]||STR.en[key]||key;
+  if(args)for(var k in args)v=v.replace('{'+k+'}',args[k]);
+  return v;
+}
+
+// ══════════════════════════════════════
+// ENGLISH QUESTIONS
+// ══════════════════════════════════════
+var QEN=[
+  {q:"According to the summary of Chapter 2, in what specific role does Arjuna surrender to Krishna?",opts:["As a rival king","As a disciple","As a military commander","As an equal friend"],ans:1,ref:"Q1: Bhagavad-gita Ch 2 Summary (bg hindi.pdf pp. 71–72)"},
+  {q:"What is the first fundamental distinction Krishna explains to Arjuna in Chapter 2?",opts:["The difference between karma and jnana","The difference between the Pandavas and Kauravas","The difference between the temporary material body and the eternal soul","The difference between heaven and hell"],ans:2,ref:"Q2: Bhagavad-gita Ch 2 Summary (bg hindi.pdf pp. 71–72)"},
+  {q:"What specific process does Krishna introduce to Arjuna in this chapter for ultimate perfection?",opts:["Unmotivated devotional service (Bhakti)","Extreme physical austerities","Renouncing all action and sleeping","Accumulating massive wealth"],ans:0,ref:"Q3: Bhagavad-gita Ch 2 Summary (bg hindi.pdf pp. 71–72)"},
+  {q:"According to Bg 2.1, what was Arjuna's emotional state when Krishna began to speak?",opts:["Full of wrath and fury","Overwhelmed with compassion and depressed","Eager and excited to fight","Completely indifferent and cold"],ans:1,ref:"Q4: Bhagavad-gita 2.1 (bg english.pdf Excerpt [1])"},
+  {q:"What were Arjuna's eyes full of, according to Sanjaya?",opts:["Anger","Tears","Dust from the battlefield","Divine light"],ans:1,ref:"Q5: Bhagavad-gita 2.1 synonyms — asru-purna-akula (bg english.pdf Excerpt [1])"},
+  {q:"Which name is used for Lord Krishna in verse 2.1, meaning 'the killer of Madhu'?",opts:["Govinda","Keshava","Madhusudana","Janardana"],ans:2,ref:"Q6: Bhagavad-gita 2.1 — Madhusudana (bg english.pdf Excerpt [1])"},
+  {q:"In verse 2.2, what does the Supreme Personality of Godhead call Arjuna's lamentation?",opts:["A sign of great love","Impurities / dirtiness (kasmalam)","True wisdom","The ultimate goal of life"],ans:1,ref:"Q7: Bhagavad-gita 2.2 (bg english.pdf Excerpt [2])"},
+  {q:"When does Krishna say these impurities have arrived upon Arjuna?",opts:["At the time of birth","After the war","In this hour of crisis (visame)","During a peaceful meditation"],ans:2,ref:"Q8: Bhagavad-gita 2.2 (bg english.pdf Excerpt [2])"},
+  {q:"According to Krishna in 2.2, Arjuna's behavior is NOT befitting whom?",opts:["A foolish person","An Aryan (a person who knows the value of life)","A coward","A child"],ans:1,ref:"Q9: Bhagavad-gita 2.2 (bg english.pdf Excerpt [2])"},
+  {q:"Where do these impurities and lamentation lead, according to verse 2.2?",opts:["To higher planets","To the spiritual sky","Not to higher planets, but to infamy","To ultimate victory"],ans:2,ref:"Q10: Bhagavad-gita 2.2 — asvargyam (bg english.pdf Excerpt [2])"},
+  {q:"Which of the following is a characteristic of the soul described in verse 2.21?",opts:["It can be destroyed by powerful weapons","It is indestructible, unborn, and immutable","It changes its fundamental nature over time","It is temporary like the body"],ans:1,ref:"Q11: Bhagavad-gita 2.21 (bg english.pdf Excerpt [3])"},
+  {q:"Because the soul is indestructible and eternal, what rhetorical question does Krishna ask Arjuna?",opts:["How can a person kill anyone or cause anyone to kill?","Why should you fight at all?","How can you win this battle?","Why don't you surrender?"],ans:0,ref:"Q12: Bhagavad-gita 2.21 (bg english.pdf Excerpt [3])"},
+  {q:"In verse 2.50, what does a person engaged in devotional service (buddhi-yuktah) rid himself of?",opts:["Only his bad actions","Only his good actions","Both good and bad actions (results)","His physical body"],ans:2,ref:"Q13: Bhagavad-gita 2.50 (bg english.pdf Excerpt [4])"},
+  {q:"When does a person engaged in devotional service get rid of these actions?",opts:["Only after a thousand lifetimes","Even in this life","Only upon entering heaven","Only during the Satya-yuga"],ans:1,ref:"Q14: Bhagavad-gita 2.50 (bg english.pdf Excerpt [4])"},
+  {q:"How is 'Yoga' defined in verse 2.50?",opts:["Holding one's breath for hours","The art of all work (karmasu kausalam)","Sitting in a dark cave","Abandoning all physical activities"],ans:1,ref:"Q15: Bhagavad-gita 2.50 — kausalam (bg english.pdf Excerpt [4])"},
+  {q:"What must one's intelligence pass out of, according to verse 2.52?",opts:["The dense forest of delusion (moha-kalilam)","The deep ocean of sorrow","The high mountains of pride","The fire of anger"],ans:0,ref:"Q16: Bhagavad-gita 2.52 (bg english.pdf Excerpt [5])"},
+  {q:"What happens when intelligence surpasses the forest of delusion?",opts:["One desires to read more scriptures","One becomes callous/indifferent to all that has been heard and is to be heard","One becomes a great debater","One gains political power"],ans:1,ref:"Q17: Bhagavad-gita 2.52 (bg english.pdf Excerpt [5])"},
+  {q:"What does the word 'nirvedam' mean in the context of verse 2.52?",opts:["Deep attachment","Callousness / Indifference","Extreme joy","Sorrow"],ans:1,ref:"Q18: Bhagavad-gita 2.52 — nirvedam (bg english.pdf Excerpt [5])"},
+  {q:"What animal is used in verse 2.58 as an analogy for someone who restrains their senses?",opts:["A lion","A snake","A tortoise","A swan"],ans:2,ref:"Q19: Bhagavad-gita 2.58 (bg hindi.pdf p. 158)"},
+  {q:"What does the tortoise specifically do that a yogi should emulate regarding sense objects?",opts:["It runs away fast","It bites its enemies","It withdraws its limbs within its shell","It hides underwater"],ans:2,ref:"Q20: Bhagavad-gita 2.58 — kurmah (bg hindi.pdf p. 158)"},
+  {q:"What is the result of withdrawing the senses from sense objects like a tortoise?",opts:["One becomes physically stronger","One is firmly fixed in perfect consciousness (prajna pratisthita)","One falls asleep","One becomes deaf and blind"],ans:1,ref:"Q21: Bhagavad-gita 2.58 (bg hindi.pdf p. 158)"},
+  {q:"According to verse 2.60, how are the senses described?",opts:["Weak and easy to control","Strong and impetuous (agitating)","Calm and peaceful","Irrelevant to spiritual life"],ans:1,ref:"Q22: Bhagavad-gita 2.60 — pramathini balvad (bg english.pdf Excerpt [6])"},
+  {q:"What do the strong senses forcibly carry away?",opts:["The physical body","The mind","The soul","The eternal karma"],ans:1,ref:"Q23: Bhagavad-gita 2.60 (bg english.pdf Excerpt [6])"},
+  {q:"The senses are so strong that they can carry away the mind of even which type of person?",opts:["Only a foolish person","A man of discrimination who is endeavoring to control them","Only an uneducated person","Only an animal"],ans:1,ref:"Q24: Bhagavad-gita 2.60 (bg english.pdf Excerpt [6])"},
+  {q:"According to verse 2.61, what should one do after subduing and restraining the senses?",opts:["Engage them in material enjoyment","Fix one's consciousness upon Krishna (mat-parah)","Go to sleep","Stare at the sun"],ans:1,ref:"Q25: Bhagavad-gita 2.61 (bg hindi.pdf p. 161)"},
+  {q:"In the purport to verse 2.61, which great king is given as an example of conquering a powerful mystic?",opts:["Maharaja Dhritarashtra","Maharaja Yudhishthira","Maharaja Ambarisha","Maharaja Parikshit"],ans:2,ref:"Q26: Bhagavad-gita 2.61 purport — Ambarisha (bg hindi.pdf p. 161)"},
+  {q:"Whom did this great king (Ambarisha) conquer?",opts:["Duryodhana","Durvasa Muni","Bhishma","Dronacharya"],ans:1,ref:"Q27: Bhagavad-gita 2.61 purport (bg hindi.pdf p. 161)"},
+  {q:"How did Maharaja Ambarisha conquer this great mystic?",opts:["By using a sharper sword","Because his mind was constantly fixed on Krishna's lotus feet","By running away faster","By offering him vast amounts of gold"],ans:1,ref:"Q28: Bhagavad-gita 2.61 purport (bg hindi.pdf p. 161)"},
+  {q:"What analogy is used in verse 2.70 to describe a peaceful person?",opts:["A burning fire","The ocean (samudram)","A tall tree","A flying bird"],ans:1,ref:"Q29: Bhagavad-gita 2.70 (bg hindi.pdf Excerpt [7])"},
+  {q:"What enters the ocean without disturbing its firm, still situation?",opts:["Fish","Sand","Rivers / Waters","Ships"],ans:2,ref:"Q30: Bhagavad-gita 2.70 (bg hindi.pdf Excerpt [7])"},
+  {q:"Just as rivers enter the ocean, what enters the peaceful person without disturbing him?",opts:["Wealth","Desires","Enemies","Sleep"],ans:1,ref:"Q31: Bhagavad-gita 2.70 (bg hindi.pdf Excerpt [7])"},
+  {q:"According to verse 2.70, who CANNOT achieve true peace?",opts:["The person who is striving to satisfy his desires","The person who controls his mind","The person who serves Krishna","The person who withdraws his senses"],ans:0,ref:"Q32: Bhagavad-gita 2.70 — kamakamee (bg hindi.pdf Excerpt [7])"},
+  {q:"What is the ultimate spiritual situation called in verse 2.72?",opts:["Karma-kanda","Brahmi sthiti","Bhoga-sthiti","Samsara"],ans:1,ref:"Q33: Bhagavad-gita 2.72 (bg english.pdf Excerpt [8])"},
+  {q:"What is the direct result of achieving this 'Brahmi sthiti'?",opts:["One becomes highly confused","One is never bewildered","One desires material wealth again","One forgets all past lives"],ans:1,ref:"Q34: Bhagavad-gita 2.72 (bg english.pdf Excerpt [8])"},
+  {q:"If one is situated in this divine state even at the hour of death (anta-kale), what do they attain?",opts:["Birth as a demigod","Complete annihilation of the soul","The spiritual kingdom of God (brahma-nirvanam)","Another human body"],ans:2,ref:"Q35: Bhagavad-gita 2.72 (bg english.pdf Excerpt [8] & bg hindi.pdf Excerpt [9])"},
+  {q:"In the Sanskrit synonyms for verse 2.1, what does 'asru-purna-akula' mean?",opts:["Full of anger","Full of tears","Full of wisdom","Full of joy"],ans:1,ref:"Q36: Bhagavad-gita 2.1 synonyms (bg english.pdf Excerpt [1])"},
+  {q:"In verse 2.2, what does the word 'asvargyam' indicate about Arjuna's lamentation?",opts:["It leads to heavenly planets","It is highly respected","It does not lead to higher planets","It is a sign of courage"],ans:2,ref:"Q37: Bhagavad-gita 2.2 — asvargyam (bg english.pdf Excerpt [2])"},
+  {q:"In verse 2.21, what does the word 'avyayam' mean?",opts:["Immutable / imperishable","Changeable","Material","Temporary"],ans:0,ref:"Q38: Bhagavad-gita 2.21 — avyayam (bg english.pdf Excerpt [3])"},
+  {q:"In verse 2.50, what does 'sukrta-duskrite' mean?",opts:["Life and death","Good and bad results (actions)","Day and night","Heaven and earth"],ans:1,ref:"Q39: Bhagavad-gita 2.50 synonyms (bg english.pdf Excerpt [4])"},
+  {q:"In verse 2.50, what is the Sanskrit word used for 'art'?",opts:["Yoga","Buddhi","Kausalam","Karma"],ans:2,ref:"Q40: Bhagavad-gita 2.50 — kausalam (bg english.pdf Excerpt [4])"},
+  {q:"In verse 2.52, what does 'vyatitarisyati' mean?",opts:["Falls down","Surpasses","Burns up","Creates"],ans:1,ref:"Q41: Bhagavad-gita 2.52 — vyatitarisyati (bg english.pdf Excerpt [5])"},
+  {q:"In verse 2.58, what is the Sanskrit word for 'tortoise'?",opts:["Kurmah","Matsya","Garuda","Hamsa"],ans:0,ref:"Q42: Bhagavad-gita 2.58 — kurmah (bg hindi.pdf p. 158)"},
+  {q:"In verse 2.60, what does the word 'pramathini' mean?",opts:["Peaceful","Agitating / impetuous","Slow","Silent"],ans:1,ref:"Q43: Bhagavad-gita 2.60 — pramathini (bg english.pdf Excerpt [6])"},
+  {q:"In verse 2.61, what does 'samyamya' mean?",opts:["Enjoying","Subduing / controlling","Seeing","Hearing"],ans:1,ref:"Q44: Bhagavad-gita 2.61 — samyamya (bg hindi.pdf p. 161)"},
+  {q:"What does the word 'mat-parah' mean in verse 2.61?",opts:["Devoted to myself","Fixed on Me (Krishna)","Fixed on wealth","Fixed on the body"],ans:1,ref:"Q45: Bhagavad-gita 2.61 — mat-parah (bg hindi.pdf p. 161)"},
+  {q:"In verse 2.70, what does 'acala-pratistham' refer to?",opts:["Moving quickly","Firmly situated / steady","Empty","Boiling"],ans:1,ref:"Q46: Bhagavad-gita 2.70 — acala-pratistham (bg hindi.pdf Excerpt [7])"},
+  {q:"According to the Chapter 2 summary, what kind of service does Krishna explain to Arjuna?",opts:["Expecting a material reward","Unmotivated / selfless service","Service to the demigods only","Political service"],ans:1,ref:"Q47: Bhagavad-gita Ch 2 Summary (bg hindi.pdf pp. 71–72)"},
+  {q:"In verse 2.1, the word 'visidantam' translates to:",opts:["Smiling","Lamenting","Fighting","Running"],ans:1,ref:"Q48: Bhagavad-gita 2.1 — visidantam (bg english.pdf Excerpt [1])"},
+  {q:"In verse 2.72, what does 'anta-kale' mean?",opts:["At the beginning of the battle","At the end of life (hour of death)","At noon","During meditation"],ans:1,ref:"Q49: Bhagavad-gita 2.72 — anta-kale (bg english.pdf Excerpt [8])"},
+  {q:"What does the Sanskrit word 'prajna' generally refer to in the context of Chapter 2 verses (like 2.58)?",opts:["Physical strength","Financial wealth","Perfect consciousness / intelligence","Ignorance"],ans:2,ref:"Q50: Bhagavad-gita 2.58 — prajna (bg hindi.pdf p. 158)"}
+];
+
+// ══════════════════════════════════════
+// HINDI QUESTIONS
+// ══════════════════════════════════════
+var QHI=[
+  {q:"अध्याय 2 के सारांश के अनुसार, अर्जुन कृष्ण की शरण किस विशिष्ट रूप में ग्रहण करता है?",opts:["एक प्रतिद्वंद्वी राजा के रूप में","एक शिष्य-रूप में","एक सैन्य कमांडर के रूप में","एक समान मित्र के रूप में"],ans:1,ref:"Q1: भगवद्गीता अध्याय 2 सारांश (bg hindi.pdf पृष्ठ 71–72)"},
+  {q:"अध्याय 2 में कृष्ण अर्जुन को सबसे पहला मूलभूत अंतर क्या समझाते हैं?",opts:["कर्म और ज्ञान के बीच का अंतर","पांडवों और कौरवों के बीच का अंतर","नश्वर भौतिक शरीर और नित्य आत्मा के बीच का अंतर","स्वर्ग और नरक के बीच का अंतर"],ans:2,ref:"Q2: भगवद्गीता अध्याय 2 सारांश (bg hindi.pdf पृष्ठ 71–72)"},
+  {q:"परम सिद्धि के लिए कृष्ण इस अध्याय में अर्जुन को कौन सा विशिष्ट मार्ग बताते हैं?",opts:["निष्काम भक्ति (भक्तियोग)","अत्यधिक शारीरिक तपस्या","सभी कर्मों को त्यागकर सोना","भारी धन संचय करना"],ans:0,ref:"Q3: भगवद्गीता अध्याय 2 सारांश (bg hindi.pdf पृष्ठ 71–72)"},
+  {q:"श्लोक 2.1 के अनुसार, जब कृष्ण ने बोलना शुरू किया तब अर्जुन की मानसिक स्थिति क्या थी?",opts:["अत्यधिक क्रोध और रोष","करुणा से अभिभूत और खिन्न (शोकग्रस्त)","युद्ध के लिए उत्सुक और उत्साहित","पूरी तरह से उदासीन और ठंडा"],ans:1,ref:"Q4: भगवद्गीता 2.1 (bg english.pdf Excerpt [1])"},
+  {q:"संजय के अनुसार, अर्जुन के नेत्र किससे भरे हुए थे?",opts:["क्रोध से","आंसुओं से (अश्रुपूर्ण)","युद्धभूमि की धूल से","दिव्य प्रकाश से"],ans:1,ref:"Q5: भगवद्गीता 2.1 — अश्रुपूर्णाकुलेक्षणम् (bg english.pdf Excerpt [1])"},
+  {q:"श्लोक 2.1 में भगवान कृष्ण के लिए किस नाम का उपयोग किया गया है, जिसका अर्थ 'मधु राक्षस का संहारकर्ता' है?",opts:["गोविन्द","केशव","मधुसूदन","जनार्दन"],ans:2,ref:"Q6: भगवद्गीता 2.1 — मधुसूदन (bg english.pdf Excerpt [1])"},
+  {q:"श्लोक 2.2 में, परम भगवान अर्जुन के शोक को क्या कहते हैं?",opts:["महान प्रेम का प्रतीक","अज्ञान / अशुद्धियाँ (कश्मलम्)","सच्चा ज्ञान","जीवन का अंतिम लक्ष्य"],ans:1,ref:"Q7: भगवद्गीता 2.2 (bg english.pdf Excerpt [2])"},
+  {q:"कृष्ण के अनुसार, ये अशुद्धियाँ अर्जुन पर कब आई हैं?",opts:["जन्म के समय","युद्ध के बाद","संकट की इस घड़ी में (विषमे)","शांतिपूर्ण ध्यान के दौरान"],ans:2,ref:"Q8: भगवद्गीता 2.2 (bg english.pdf Excerpt [2])"},
+  {q:"श्लोक 2.2 में कृष्ण के अनुसार, अर्जुन का व्यवहार किसके लिए उचित नहीं है?",opts:["एक मूर्ख व्यक्ति के लिए","एक आर्य के लिए (वह व्यक्ति जो जीवन का मूल्य जानता है)","एक कायर के लिए","एक बच्चे के लिए"],ans:1,ref:"Q9: भगवद्गीता 2.2 (bg english.pdf Excerpt [2])"},
+  {q:"श्लोक 2.2 के अनुसार, ये अशुद्धियाँ और शोक कहाँ ले जाते हैं?",opts:["उच्च ग्रहों (स्वर्ग) तक","आध्यात्मिक आकाश तक","उच्च ग्रहों तक नहीं, बल्कि अपयश (अपकीर्ति) की ओर","अंतिम विजय की ओर"],ans:2,ref:"Q10: भगवद्गीता 2.2 — अस्वर्ग्यम् (bg english.pdf Excerpt [2])"},
+  {q:"श्लोक 2.21 में वर्णित आत्मा की विशेषता निम्नलिखित में से कौन सी है?",opts:["इसे शक्तिशाली हथियारों से नष्ट किया जा सकता है","यह अविनाशी, अजन्मा और अव्यय (अपरिवर्तनीय) है","यह समय के साथ अपना मूल स्वरूप बदल लेती है","यह शरीर की तरह नश्वर है"],ans:1,ref:"Q11: भगवद्गीता 2.21 (bg english.pdf Excerpt [3])"},
+  {q:"चूँकि आत्मा अविनाशी और शाश्वत है, इसलिए कृष्ण अर्जुन से कौन सा प्रश्न पूछते हैं?",opts:["कोई व्यक्ति किसी को कैसे मार सकता है या किसी को कैसे मरवा सकता है?","तुम्हें युद्ध ही क्यों करना चाहिए?","तुम इस युद्ध को कैसे जीत सकते हो?","तुम आत्मसमर्पण क्यों नहीं करते?"],ans:0,ref:"Q12: भगवद्गीता 2.21 (bg english.pdf Excerpt [3])"},
+  {q:"श्लोक 2.50 में, भक्ति में लगा हुआ व्यक्ति (बुद्धियुक्तः) अपने आप को किससे मुक्त कर लेता है?",opts:["केवल अपने बुरे कर्मों से","केवल अपने अच्छे कर्मों से","अच्छे और बुरे दोनों कर्मों (फलों) से","अपने भौतिक शरीर से"],ans:2,ref:"Q13: भगवद्गीता 2.50 (bg english.pdf Excerpt [4])"},
+  {q:"भक्ति में लगा हुआ व्यक्ति इन कर्मों से कब छुटकारा पाता है?",opts:["केवल एक हजार जन्मों के बाद","इसी जीवन में (इह)","केवल स्वर्ग में प्रवेश करने पर","केवल सत्य-युग के दौरान"],ans:1,ref:"Q14: भगवद्गीता 2.50 (bg english.pdf Excerpt [4])"},
+  {q:"श्लोक 2.50 में 'योग' को किस प्रकार परिभाषित किया गया है?",opts:["घंटों तक सांस रोकना","सभी कार्यों (कर्मों) में कुशलता / कला (कर्मसु कौशलम्)","अंधेरी गुफा में बैठना","सभी शारीरिक गतिविधियों को छोड़ देना"],ans:1,ref:"Q15: भगवद्गीता 2.50 — कौशलम् (bg english.pdf Excerpt [4])"},
+  {q:"श्लोक 2.52 के अनुसार, बुद्धि को किससे बाहर निकलना चाहिए?",opts:["मोह के घने जंगल से (मोहकलिलम्)","दुख के गहरे महासागर से","अभिमान के ऊंचे पहाड़ों से","क्रोध की अग्नि से"],ans:0,ref:"Q16: भगवद्गीता 2.52 (bg english.pdf Excerpt [5])"},
+  {q:"जब बुद्धि मोह के जंगल को पार कर जाती है तो क्या होता है?",opts:["व्यक्ति अधिक शास्त्र पढ़ने की इच्छा करता है","व्यक्ति जो कुछ सुना जा चुका है और जो कुछ सुना जाने वाला है, उसके प्रति विरक्त (उदासीन) हो जाता है","व्यक्ति एक महान तार्किक बन जाता है","व्यक्ति राजनीतिक सत्ता प्राप्त करता है"],ans:1,ref:"Q17: भगवद्गीता 2.52 (bg english.pdf Excerpt [5])"},
+  {q:"श्लोक 2.52 के संदर्भ में 'निर्वेदम्' शब्द का क्या अर्थ है?",opts:["गहरी आसक्ति","विरक्ति / उदासीनता","अत्यधिक हर्ष","दुख"],ans:1,ref:"Q18: भगवद्गीता 2.52 — निर्वेदम् (bg english.pdf Excerpt [5])"},
+  {q:"श्लोक 2.58 में जो व्यक्ति अपनी इंद्रियों को वश में करता है, उसके लिए किस जानवर का उदाहरण दिया गया है?",opts:["शेर","साँप","कछुआ (कूर्म)","हंस"],ans:2,ref:"Q19: भगवद्गीता 2.58 (bg hindi.pdf पृष्ठ 158)"},
+  {q:"कछुआ विशेष रूप से ऐसा क्या करता है जिसका अनुसरण एक योगी को इंद्रिय विषयों के संबंध में करना चाहिए?",opts:["यह बहुत तेजी से भागता है","यह अपने दुश्मनों को काटता है","यह अपने अंगों को अपने खोल के भीतर समेट लेता है","यह पानी के भीतर छिप जाता है"],ans:2,ref:"Q20: भगवद्गीता 2.58 — कूर्मः (bg hindi.pdf पृष्ठ 158)"},
+  {q:"कछुए की तरह इंद्रियों को इंद्रिय विषयों से खींच लेने का परिणाम क्या होता है?",opts:["व्यक्ति शारीरिक रूप से मजबूत हो जाता है","व्यक्ति पूर्ण चेतना में दृढ़तापूर्वक स्थिर हो जाता है (प्रज्ञा प्रतिष्ठिता)","व्यक्ति सो जाता है","व्यक्ति बहरा और अंधा हो जाता है"],ans:1,ref:"Q21: भगवद्गीता 2.58 (bg hindi.pdf पृष्ठ 158)"},
+  {q:"श्लोक 2.60 के अनुसार, इंद्रियों का वर्णन किस प्रकार किया गया है?",opts:["कमजोर और आसानी से नियंत्रित होने वाली","बलवान और हठी / मथने वाली (प्रमाथीनि बलवद्)","शांत और सौम्य","आध्यात्मिक जीवन के लिए अप्रासंगिक"],ans:1,ref:"Q22: भगवद्गीता 2.60 — प्रमाथीनि बलवद् (bg english.pdf Excerpt [6])"},
+  {q:"बलवान इंद्रियां बलपूर्वक किसे हर (खींच) ले जाती हैं?",opts:["भौतिक शरीर को","मन को","आत्मा को","शाश्वत कर्म को"],ans:1,ref:"Q23: भगवद्गीता 2.60 (bg english.pdf Excerpt [6])"},
+  {q:"इंद्रियां इतनी मजबूत होती हैं कि वे किस प्रकार के व्यक्ति के मन को भी हर ले जाती हैं?",opts:["केवल एक मूर्ख व्यक्ति के","उस विवेकी पुरुष के जो उन्हें वश में करने का प्रयत्न कर रहा है","केवल एक अशिक्षित व्यक्ति के","केवल एक जानवर के"],ans:1,ref:"Q24: भगवद्गीता 2.60 (bg english.pdf Excerpt [6])"},
+  {q:"श्लोक 2.61 के अनुसार, इंद्रियों को वश में करने के बाद क्या करना चाहिए?",opts:["उन्हें भौतिक सुखों में लगाना चाहिए","अपनी चेतना को मुझ पर (कृष्ण पर) स्थिर करना चाहिए (मत्परः)","सो जाना चाहिए","सूर्य को घूरना चाहिए"],ans:1,ref:"Q25: भगवद्गीता 2.61 (bg hindi.pdf पृष्ठ 161)"},
+  {q:"श्लोक 2.61 के तात्पर्य में, किस महान राजा का उदाहरण दिया गया है जिसने एक शक्तिशाली योगी पर विजय प्राप्त की थी?",opts:["महाराज धृतराष्ट्र","महाराज युधिष्ठिर","महाराज अम्बरीष","महाराज परीक्षित"],ans:2,ref:"Q26: भगवद्गीता 2.61 तात्पर्य — अम्बरीष (bg hindi.pdf पृष्ठ 161)"},
+  {q:"इस महान राजा (अम्बरीष) ने किस पर विजय प्राप्त की थी?",opts:["दुर्योधन","दुर्वासा मुनि","भीष्म","द्रोणाचार्य"],ans:1,ref:"Q27: भगवद्गीता 2.61 तात्पर्य (bg hindi.pdf पृष्ठ 161)"},
+  {q:"महाराज अम्बरीष ने इस महान योगी पर कैसे विजय प्राप्त की?",opts:["एक तेज तलवार का उपयोग करके","क्योंकि उनका मन निरंतर कृष्ण के चरण कमलों में स्थिर रहता था","तेज दौड़कर","उसे भारी मात्रा में सोना देकर"],ans:1,ref:"Q28: भगवद्गीता 2.61 तात्पर्य (bg hindi.pdf पृष्ठ 161)"},
+  {q:"श्लोक 2.70 में, एक शांत व्यक्ति का वर्णन करने के लिए किस सादृश्य का उपयोग किया गया है?",opts:["जलती हुई आग","समुद्र (समुद्रम्)","एक लंबा पेड़","एक उड़ता हुआ पक्षी"],ans:1,ref:"Q29: भगवद्गीता 2.70 (bg hindi.pdf Excerpt [7])"},
+  {q:"समुद्र की दृढ़ और अचल स्थिति को भंग किए बिना उसमें क्या प्रवेश करता है?",opts:["मछलियाँ","रेत","नदियाँ / जल","जहाज"],ans:2,ref:"Q30: भगवद्गीता 2.70 (bg hindi.pdf Excerpt [7])"},
+  {q:"जिस प्रकार नदियाँ समुद्र में प्रवेश करती हैं, उसी प्रकार एक शांत व्यक्ति में उसे विचलित किए बिना क्या प्रवेश करती हैं?",opts:["धन","इच्छाएँ (काम)","शत्रु","नींद"],ans:1,ref:"Q31: भगवद्गीता 2.70 (bg hindi.pdf Excerpt [7])"},
+  {q:"श्लोक 2.70 के अनुसार, कौन सच्ची शांति प्राप्त नहीं कर सकता?",opts:["वह व्यक्ति जो अपनी इच्छाओं को पूरा करने का प्रयास कर रहा है (कामकामी)","वह व्यक्ति जो अपने मन को नियंत्रित करता है","वह व्यक्ति जो कृष्ण की सेवा करता है","वह व्यक्ति जो अपनी इंद्रियों को समेट लेता है"],ans:0,ref:"Q32: भगवद्गीता 2.70 — कामकामी (bg hindi.pdf Excerpt [7])"},
+  {q:"श्लोक 2.72 में अंतिम आध्यात्मिक स्थिति को क्या कहा गया है?",opts:["कर्म-कांड","ब्राह्मी स्थिति","भोग-स्थिति","संसार"],ans:1,ref:"Q33: भगवद्गीता 2.72 (bg english.pdf Excerpt [8])"},
+  {q:"इस 'ब्राह्मी स्थिति' को प्राप्त करने का प्रत्यक्ष परिणाम क्या है?",opts:["व्यक्ति अत्यधिक भ्रमित हो जाता है","व्यक्ति कभी मोहित (विचलित) नहीं होता","व्यक्ति फिर से भौतिक धन की इच्छा करता है","व्यक्ति अपने सभी पिछले जन्मों को भूल जाता है"],ans:1,ref:"Q34: भगवद्गीता 2.72 (bg english.pdf Excerpt [8])"},
+  {q:"यदि कोई व्यक्ति मृत्यु के समय (अन्त-काले) भी इस दिव्य स्थिति में स्थित रहता है, तो उसे क्या प्राप्त होता है?",opts:["देवता के रूप में जन्म","आत्मा का पूर्ण विनाश","भगवान का आध्यात्मिक धाम / मोक्ष (ब्रह्मनिर्वाणम्)","एक और मानव शरीर"],ans:2,ref:"Q35: भगवद्गीता 2.72 (bg english.pdf Excerpt [8] & bg hindi.pdf Excerpt [9])"},
+  {q:"श्लोक 2.1 के संस्कृत शब्दार्थ में, 'अश्रुपूर्णाकुलेक्षणम्' का क्या अर्थ है?",opts:["क्रोध से भरा हुआ","आँसुओं से भरा हुआ","ज्ञान से भरा हुआ","आनंद से भरा हुआ"],ans:1,ref:"Q36: भगवद्गीता 2.1 (bg english.pdf Excerpt [1])"},
+  {q:"श्लोक 2.2 में, 'अस्वर्ग्यम्' शब्द अर्जुन के शोक के बारे में क्या दर्शाता है?",opts:["यह स्वर्ग ग्रहों की ओर ले जाता है","यह अत्यधिक सम्मानित है","यह उच्च ग्रहों की ओर नहीं ले जाता","यह साहस का प्रतीक है"],ans:2,ref:"Q37: भगवद्गीता 2.2 — अस्वर्ग्यम् (bg english.pdf Excerpt [2])"},
+  {q:"श्लोक 2.21 में 'अव्ययम्' शब्द का क्या अर्थ है?",opts:["अपरिवर्तनीय / अविनाशी","परिवर्तनशील","भौतिक","अस्थायी"],ans:0,ref:"Q38: भगवद्गीता 2.21 — अव्ययम् (bg english.pdf Excerpt [3])"},
+  {q:"श्लोक 2.50 में 'सुकृत-दुष्कृते' का क्या अर्थ है?",opts:["जीवन और मृत्यु","अच्छे और बुरे कर्म (फल)","दिन और रात","स्वर्ग और पृथ्वी"],ans:1,ref:"Q39: भगवद्गीता 2.50 (bg english.pdf Excerpt [4])"},
+  {q:"श्लोक 2.50 में 'कौशलम्' के लिए कौन सा अर्थ प्रयुक्त हुआ है?",opts:["योग","बुद्धि","कुशलता / कला","कर्म"],ans:2,ref:"Q40: भगवद्गीता 2.50 — कौशलम् (bg english.pdf Excerpt [4])"},
+  {q:"श्लोक 2.52 में, 'व्यतितरिष्यति' का क्या अर्थ है?",opts:["नीचे गिरना","पार कर जाना / लाँघना","जल जाना","निर्माण करना"],ans:1,ref:"Q41: भगवद्गीता 2.52 — व्यतितरिष्यति (bg english.pdf Excerpt [5])"},
+  {q:"श्लोक 2.58 में 'कछुए' के लिए किस संस्कृत शब्द का प्रयोग हुआ है?",opts:["कूर्मः","मत्स्य","गरुड़","हंस"],ans:0,ref:"Q42: भगवद्गीता 2.58 — कूर्मः (bg hindi.pdf पृष्ठ 158)"},
+  {q:"श्लोक 2.60 में, 'प्रमाथीनि' शब्द का क्या अर्थ है?",opts:["शांतिपूर्ण","मथने वाली / हठी","धीमी","मौन"],ans:1,ref:"Q43: भगवद्गीता 2.60 — प्रमाथीनि (bg english.pdf Excerpt [6])"},
+  {q:"श्लोक 2.61 में 'संयम्य' का क्या अर्थ है?",opts:["आनंद लेना","वश में करके / संयमित करके","देखना","सुनना"],ans:1,ref:"Q44: भगवद्गीता 2.61 — संयम्य (bg hindi.pdf पृष्ठ 161)"},
+  {q:"श्लोक 2.61 में प्रयुक्त 'मत्परः' शब्द का क्या अर्थ है?",opts:["अपने प्रति समर्पित","मुझ पर (कृष्ण पर) स्थिर या परायण","धन पर स्थिर","शरीर पर स्थिर"],ans:1,ref:"Q45: भगवद्गीता 2.61 — मत्परः (bg hindi.pdf पृष्ठ 161)"},
+  {q:"श्लोक 2.70 में 'अचल-प्रतिष्ठम्' किसे संदर्भित करता है?",opts:["तेजी से आगे बढ़ना","दृढ़तापूर्वक स्थित / अचल","खाली","उबलता हुआ"],ans:1,ref:"Q46: भगवद्गीता 2.70 — अचल-प्रतिष्ठम् (bg hindi.pdf Excerpt [7])"},
+  {q:"अध्याय 2 के सारांश के अनुसार, कृष्ण अर्जुन को किस प्रकार की सेवा समझाते हैं?",opts:["भौतिक इनाम की अपेक्षा वाली","निष्काम सेवा","केवल देवताओं की सेवा","राजनीतिक सेवा"],ans:1,ref:"Q47: भगवद्गीता अध्याय 2 सारांश (bg hindi.pdf पृष्ठ 71–72)"},
+  {q:"श्लोक 2.1 में, 'विषीदन्तम्' शब्द का क्या अर्थ है?",opts:["मुस्कुराना","शोकग्रस्त होना / खिन्न होना","लड़ना","दौड़ना"],ans:1,ref:"Q48: भगवद्गीता 2.1 — विषीदन्तम् (bg english.pdf Excerpt [1])"},
+  {q:"श्लोक 2.72 में, 'अन्त-काले' का क्या अर्थ है?",opts:["युद्ध की शुरुआत में","जीवन के अंत में (मृत्यु के समय)","दोपहर में","ध्यान के दौरान"],ans:1,ref:"Q49: भगवद्गीता 2.72 — अन्त-काले (bg english.pdf Excerpt [8])"},
+  {q:"श्लोक 2.58 के संदर्भ में संस्कृत शब्द 'प्रज्ञा' सामान्यतः किसे संदर्भित करता है?",opts:["शारीरिक शक्ति","वित्तीय धन","चेतना / बुद्धि","अज्ञान"],ans:2,ref:"Q50: भगवद्गीता 2.58 — प्रज्ञा (bg hindi.pdf पृष्ठ 158)"}
+];
+
+var Q=QEN; // active questions based on language
+
+// ══════════════════════════════════════
+// STATE
+// ══════════════════════════════════════
+var S={
+  q:0,score:0,correct:0,wrong:0,skipped:0,
+  answered:new Array(50).fill(null),
+  timerDef:59,timerLeft:59,timerInt:null,
+  paused:false,fbOpen:false,
+  playerName:'',roundCorrectAtStart:0,roundScoreAtStart:0,
+  difficulty:'easy',mistakesLeft:5,autoNextFbInt:null
+};
+var DIFF_CONFIG={easy:{label:'Easy',max:5,cls:'easy'},med:{label:'Medium',max:2,cls:'med'},hard:{label:'Hard',max:1,cls:'hard'}};
+var LABS=['A','B','C','D'];
+
+// ══════════════════════════════════════
+// STORAGE
+// ══════════════════════════════════════
+function saveS(){try{localStorage.setItem('gqs_ch2',JSON.stringify({playerName:S.playerName,lang:LANG}));}catch(e){}}
+function loadS(){try{var d=localStorage.getItem('gqs_ch2');if(d){var p=JSON.parse(d);S.playerName=p.playerName||'';LANG=p.lang||'en';}}catch(e){}}
+function saveHistory(){try{var h=JSON.parse(localStorage.getItem('gh_ch2')||'[]');h.unshift({d:new Date().toLocaleDateString(LANG==='hi'?'hi-IN':'en-GB'),s:S.score,c:S.correct,p:Math.round((S.correct/50)*100)});localStorage.setItem('gh_ch2',JSON.stringify(h.slice(0,5)));}catch(e){}}
+function renderHistory(){try{var h=JSON.parse(localStorage.getItem('gh_ch2')||'[]'),el=document.getElementById('histList');el.innerHTML='';if(!h.length){el.innerHTML='<div style="font-size:0.63rem;color:var(--muted);opacity:0.5">'+t('histEmpty')+'</div>';return;}for(var i=0;i<h.length;i++)el.innerHTML+='<div class="hist-item"><span>'+(i===0?'🔵':'⚪')+' '+h[i].d+'</span><span class="hs">'+h[i].s+' pts ('+h[i].p+'%)</span></div>';}catch(e){}}
+
+function r(arr){return arr[Math.floor(Math.random()*arr.length)];}
+
+// ══════════════════════════════════════
+// UI TEXT
+// ══════════════════════════════════════
+function applyLanguageUI(){
+  Q=LANG==='hi'?QHI:QEN;
+  // Rules
+  document.getElementById('rulesTtl').textContent=t('rulesTitle');
+  var items=t('rulesItems');var rc=document.getElementById('rulesContent');rc.innerHTML='';
+  items.forEach(function(item){rc.innerHTML+='<div class="rule-item"><div class="rule-ico">'+item.ico+'</div><div class="rule-txt"><strong>'+item.strong+'</strong>'+item.txt+'</div></div>';});
+  document.getElementById('rulesNextBtn').textContent=t('rulesNext');
+  document.getElementById('rulesBackBtn').textContent=t('rulesBack');
+  // Diff
+  document.getElementById('diffTtl').textContent=t('diffTtl');
+  document.getElementById('diffSub').textContent=t('diffSub');
+  document.getElementById('dEasyName').textContent=t('dEasyName');
+  document.getElementById('dEasyRule').innerHTML='<strong>✅ '+STR[LANG].dEasyRule.split('. ')[0]+'</strong>'+(STR[LANG].dEasyRule.split('. ')[1]||'');
+  if(LANG==='en'){document.getElementById('dEasyRule').innerHTML='<strong>✅ 5 mistakes allowed</strong>For new students.';}
+  document.getElementById('dEasyTag').textContent=t('dEasyTag');
+  document.getElementById('dMedName').textContent=t('dMedName');
+  if(LANG==='en'){document.getElementById('dMedRule').innerHTML='<strong>✅ 2 mistakes allowed</strong>For experienced seekers.';}
+  else{document.getElementById('dMedRule').innerHTML='<strong>✅ 2 गलतियाँ क्षम्य</strong>अनुभवी साधकों के लिए।';}
+  document.getElementById('dMedTag').textContent=t('dMedTag');
+  document.getElementById('dHardName').textContent=t('dHardName');
+  if(LANG==='en'){document.getElementById('dHardRule').innerHTML='<strong>✅ Only 1 mistake allowed</strong>Supreme test of wisdom.';}
+  else{document.getElementById('dHardRule').innerHTML='<strong>✅ केवल 1 गलती क्षम्य</strong>परम ज्ञानियों की परीक्षा।';}
+  document.getElementById('dHardTag').textContent=t('dHardTag');
+  document.getElementById('diffBackBtn').textContent=t('diffBack');
+  // Quiz
+  document.getElementById('prevBtn').textContent=t('prevBtn');
+  document.getElementById('skipBtn').textContent=t('skipBtn');
+  document.getElementById('nextBtn').textContent=t('nextBtn');
+  document.getElementById('refLabel').textContent=t('refLabel');
+  document.getElementById('contBtn').textContent=t('contBtn');
+  document.getElementById('rStatScoreLbl').textContent=t('rStatScoreLbl');
+  document.getElementById('rStatCorrectLbl').textContent=t('rStatCorrectLbl');
+  document.getElementById('rStatPctLbl').textContent=t('rStatPctLbl');
+  document.getElementById('pauseLabel').textContent=t('pauseLabel');
+  document.getElementById('mResumeLabel').textContent=t('menuResume');
+  document.getElementById('mHomeLabel').textContent=t('menuHome');
+  document.getElementById('mRestartLabel').textContent=t('menuRestart');
+  document.getElementById('mResultLabel').textContent=t('menuResult');
+  document.getElementById('nameTitle').textContent=t('nameTitle');
+  document.getElementById('nameSub').textContent=t('nameSub');
+  document.getElementById('nameInp').placeholder=t('namePlaceholder');
+  document.getElementById('nameSaveBtn').textContent=t('nameSave');
+  document.getElementById('goTitle').textContent=t('goTitle');
+  document.getElementById('resTtl').textContent=t('resTtl');
+  document.getElementById('resSub').textContent=t('resSub');
+  document.getElementById('stCLbl').textContent=t('stCLbl');
+  document.getElementById('stWLbl').textContent=t('stWLbl');
+  document.getElementById('stSLbl').textContent=t('stSSLbl');
+  document.getElementById('histTtl').textContent=t('histTtl');
+  document.getElementById('restartBtn').textContent=t('restartBtn');
+  document.getElementById('homeBtn2').textContent=t('homeBtn');
+  document.getElementById('loadingTxt').textContent=t('loadingTxt');
+  document.getElementById('goRestartBtn').textContent=t('restartBtn');
+  document.getElementById('goHomeBtn').textContent=t('homeBtn');
+}
+
+// ══════════════════════════════════════
+// HEARTS
+// ══════════════════════════════════════
+function renderHearts(){
+  var cfg=DIFF_CONFIG[S.difficulty],row=document.getElementById('heartsRow');
+  row.innerHTML='';
+  for(var i=0;i<cfg.max;i++){var h=document.createElement('span');h.className='heart'+(i>=S.mistakesLeft?' lost':'');h.textContent='❤️';row.appendChild(h);}
+}
+
+// ══════════════════════════════════════
+// BACKGROUND
+// ══════════════════════════════════════
+var bgC=document.getElementById('bgCanvas'),bgX=bgC.getContext('2d');
+var CW,CH,pts=[],bgPh=0;
+function szBg(){CW=bgC.width=window.innerWidth;CH=bgC.height=window.innerHeight;}
+szBg();window.addEventListener('resize',function(){szBg();mkPts();});
+function mkPts(){pts=[];var n=Math.min(65,Math.floor(CW*CH/13000));for(var i=0;i<n;i++)pts.push({x:Math.random()*CW,y:Math.random()*CH,r:Math.random()*1.6+0.4,dx:(Math.random()-0.5)*0.14,dy:-Math.random()*0.28-0.05,a:Math.random()*0.32+0.1,gold:Math.random()>0.5,crimson:Math.random()>0.72});}
+mkPts();
+function drawBg(){bgX.clearRect(0,0,CW,CH);var gr=bgX.createRadialGradient(CW/2,CH*0.2,0,CW/2,CH*0.5,Math.max(CW,CH)*0.95);gr.addColorStop(0,'rgba(18,4,8,1)');gr.addColorStop(0.5,'rgba(10,2,18,1)');gr.addColorStop(1,'rgba(3,2,10,1)');bgX.fillStyle=gr;bgX.fillRect(0,0,CW,CH);bgPh+=0.0025;for(var i=0;i<pts.length;i++){var p=pts[i];p.x+=p.dx;p.y+=p.dy;if(p.y<-4){p.y=CH+4;p.x=Math.random()*CW;}if(p.x<0)p.x=CW;if(p.x>CW)p.x=0;var pu=Math.sin(bgPh+p.x*0.01)*0.14+0.86;bgX.beginPath();bgX.arc(p.x,p.y,p.r*pu,0,Math.PI*2);var col=p.gold?'rgba(201,168,76,'+(p.a*pu)+')':p.crimson?'rgba(139,26,26,'+(p.a*pu*0.7)+')':'rgba(160,180,240,'+(p.a*pu*0.5)+')';bgX.fillStyle=col;bgX.fill();}requestAnimationFrame(drawBg);}
+drawBg();
+
+// SPRINKLES
+var spkC=document.getElementById('spkCanvas'),spkX=spkC.getContext('2d');
+var spkPts=[],spkActive=false;
+spkC.width=window.innerWidth;spkC.height=window.innerHeight;
+window.addEventListener('resize',function(){spkC.width=window.innerWidth;spkC.height=window.innerHeight;});
+function spkBurst(x,y,n){if(!n)n=18;for(var i=0;i<n;i++){var ang=Math.random()*Math.PI*2,spd=Math.random()*3+0.8;spkPts.push({x:x,y:y,vx:Math.cos(ang)*spd,vy:Math.sin(ang)*spd-1.2,r:Math.random()*2.2+0.7,life:1,decay:Math.random()*0.022+0.015,gold:Math.random()>0.35,shape:Math.floor(Math.random()*3)});}if(!spkActive){spkActive=true;animSpk();}}
+function animSpk(){spkX.clearRect(0,0,spkC.width,spkC.height);var alive=false;for(var i=spkPts.length-1;i>=0;i--){var p=spkPts[i];p.x+=p.vx;p.y+=p.vy;p.vy+=0.065;p.vx*=0.97;p.life-=p.decay;if(p.life<=0){spkPts.splice(i,1);continue;}alive=true;spkX.save();spkX.globalAlpha=p.life*p.life;spkX.translate(p.x,p.y);var col=p.gold?'rgba(201,168,76,1)':'rgba(139,26,26,1)';spkX.fillStyle=col;spkX.shadowBlur=5;spkX.shadowColor=col;if(p.shape===0){spkX.beginPath();spkX.arc(0,0,p.r,0,Math.PI*2);spkX.fill();}else{spkX.fillRect(-p.r/2,-p.r/2,p.r,p.r);}spkX.restore();}if(alive)requestAnimationFrame(animSpk);else spkActive=false;}
+function spkEl(el){if(!el)return;var rect=el.getBoundingClientRect();spkBurst(rect.left+rect.width/2,rect.top+rect.height/2,14);}
+
+// SOUNDS
+function mkAC(){try{return window.AudioContext?new AudioContext():window.webkitAudioContext?new webkitAudioContext():null;}catch(e){return null;}}
+function playTap(){try{var ac=mkAC();if(!ac)return;var o=ac.createOscillator(),g=ac.createGain();o.connect(g);g.connect(ac.destination);o.type='sine';o.frequency.setValueAtTime(1200,ac.currentTime);o.frequency.exponentialRampToValueAtTime(900,ac.currentTime+0.07);g.gain.setValueAtTime(0.05,ac.currentTime);g.gain.exponentialRampToValueAtTime(0.001,ac.currentTime+0.1);o.start();o.stop(ac.currentTime+0.12);}catch(e){}}
+function playCorrect(){try{var ac=mkAC();if(!ac)return;[523,659,784,1047].forEach(function(f,i){var o=ac.createOscillator(),g=ac.createGain();o.connect(g);g.connect(ac.destination);o.type='sine';o.frequency.value=f;g.gain.setValueAtTime(0.18,ac.currentTime+i*0.09);g.gain.exponentialRampToValueAtTime(0.001,ac.currentTime+i*0.09+0.42);o.start(ac.currentTime+i*0.09);o.stop(ac.currentTime+i*0.09+0.48);});}catch(e){}}
+function playWrong(){try{var ac=mkAC();if(!ac)return;// Dramatic premium wrong sound ~1.4s
+var now=ac.currentTime;
+// Low thud
+var o1=ac.createOscillator(),g1=ac.createGain();o1.connect(g1);g1.connect(ac.destination);o1.type='sawtooth';o1.frequency.setValueAtTime(220,now);o1.frequency.exponentialRampToValueAtTime(80,now+0.5);g1.gain.setValueAtTime(0,now);g1.gain.linearRampToValueAtTime(0.22,now+0.04);g1.gain.exponentialRampToValueAtTime(0.001,now+0.65);o1.start(now);o1.stop(now+0.7);
+// Dark tones
+[294,277].forEach(function(f,i){var o=ac.createOscillator(),g=ac.createGain();o.connect(g);g.connect(ac.destination);o.type='triangle';o.frequency.setValueAtTime(f,now+0.08+i*0.16);o.frequency.exponentialRampToValueAtTime(f*0.7,now+0.08+i*0.16+0.6);g.gain.setValueAtTime(0,now+0.08+i*0.16);g.gain.linearRampToValueAtTime(0.14,now+0.1+i*0.16);g.gain.exponentialRampToValueAtTime(0.001,now+0.7+i*0.16);o.start(now+0.08+i*0.16);o.stop(now+0.75+i*0.16);});}catch(e){}}
+function playWhoosh(){try{var ac=mkAC();if(!ac)return;var o=ac.createOscillator(),g=ac.createGain();o.connect(g);g.connect(ac.destination);o.type='sine';o.frequency.setValueAtTime(300,ac.currentTime);o.frequency.exponentialRampToValueAtTime(750,ac.currentTime+0.18);g.gain.setValueAtTime(0.09,ac.currentTime);g.gain.exponentialRampToValueAtTime(0.001,ac.currentTime+0.22);o.start();o.stop(ac.currentTime+0.25);}catch(e){}}
+function playBell(){try{var ac=mkAC();if(!ac)return;[523,1047,1568,2093].forEach(function(f,i){var o=ac.createOscillator(),g=ac.createGain();o.connect(g);g.connect(ac.destination);o.type='sine';o.frequency.value=f;g.gain.setValueAtTime(0,ac.currentTime+i*0.14);g.gain.linearRampToValueAtTime(0.16,ac.currentTime+i*0.14+0.02);g.gain.exponentialRampToValueAtTime(0.001,ac.currentTime+i*0.14+1.1);o.start(ac.currentTime+i*0.14);o.stop(ac.currentTime+i*0.14+1.2);});}catch(e){}}
+function playEpic(){try{var ac=mkAC();if(!ac)return;[261,329,392,523,659].forEach(function(f,i){var o=ac.createOscillator(),g=ac.createGain();o.connect(g);g.connect(ac.destination);o.type='triangle';o.frequency.value=f;g.gain.setValueAtTime(0,ac.currentTime+i*0.07);g.gain.linearRampToValueAtTime(0.14,ac.currentTime+i*0.07+0.05);g.gain.exponentialRampToValueAtTime(0.001,ac.currentTime+i*0.07+1.3);o.start(ac.currentTime+i*0.07);o.stop(ac.currentTime+i*0.07+1.4);});}catch(e){}}
+
+// RIPPLE
+function addRipple(el,e){var rect=el.getBoundingClientRect();var x=(e.clientX||rect.left+rect.width/2)-rect.left,y=(e.clientY||rect.top+rect.height/2)-rect.top;var rr=document.createElement('span');rr.className='ripple';var size=Math.max(rect.width,rect.height)*2;rr.style.cssText='width:'+size+'px;height:'+size+'px;left:'+(x-size/2)+'px;top:'+(y-size/2)+'px;';el.appendChild(rr);setTimeout(function(){rr.remove();},600);}
+document.addEventListener('click',function(e){var el=e.target.closest('.ripple-host');if(el){addRipple(el,e);playTap();}});
+
+// TRANSITIONS
+function cineTrans(cb){var ov=document.getElementById('transOverlay');ov.style.transition='opacity 0.2s ease';ov.style.opacity='1';setTimeout(function(){try{cb();}catch(err){console.error(err);}ov.style.transition='opacity 0.3s ease';setTimeout(function(){ov.style.opacity='0';},60);},220);}
+function showScreen(id){var all=document.querySelectorAll('.screen');for(var i=0;i<all.length;i++)all[i].classList.remove('active');var el=document.getElementById(id);if(!el)return;el.classList.add('active','fade-in');setTimeout(function(){el.classList.remove('fade-in');},420);}
+
+function showToast(msg){var t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(function(){t.classList.remove('show');},2300);}
+function showLoading(){document.getElementById('loadingOv').classList.add('show');}
+function hideLoading(){document.getElementById('loadingOv').classList.remove('show');}
+
+// NAVIGATION
+function goLangScreen(){stopTimer();clearAutoNext();document.getElementById('fbOverlay').classList.remove('show');document.getElementById('gameoverOv').classList.remove('show');document.getElementById('menuOv').classList.remove('show');document.getElementById('pauseOv').classList.remove('show');S.paused=false;S.fbOpen=false;cineTrans(function(){showScreen('langScreen');});}
+function goRules(){cineTrans(function(){showScreen('rulesScreen');});}
+function goDiffScreen(){cineTrans(function(){showScreen('diffScreen');});}
+
+function selectDifficulty(diff){
+  S.difficulty=diff;
+  spkBurst(window.innerWidth/2,window.innerHeight/2,20);
+  if(!S.playerName){setTimeout(function(){document.getElementById('nameOv').classList.add('show');},120);return;}
+  cineTrans(function(){actuallyStartQuiz();});
+}
+
+function actuallyStartQuiz(){
+  var cfg=DIFF_CONFIG[S.difficulty];
+  S.q=0;S.score=0;S.correct=0;S.wrong=0;S.skipped=0;
+  S.answered=new Array(50).fill(null);S.paused=false;S.fbOpen=false;
+  S.timerDef=59;S.timerLeft=59;S.roundCorrectAtStart=0;S.roundScoreAtStart=0;
+  S.mistakesLeft=cfg.max;
+  var db=document.getElementById('diffBadgeTop');db.textContent=cfg.label;db.className='diff-badge-top '+cfg.cls;
+  stopTimer();showScreen('quizScreen');renderHearts();renderQ();startTimer();
+}
+
+function triggerGameOver(){
+  stopTimer();clearAutoNext();playWrong();
+  spkBurst(window.innerWidth/2,window.innerHeight/2,10);
+  document.getElementById('goScore').textContent=S.score+(LANG==='hi'?' अंक':' pts');
+  document.getElementById('goMsg').textContent=t('goMsg');
+  var cfg=DIFF_CONFIG[S.difficulty];
+  document.getElementById('goSub').textContent=LANG==='hi'?cfg.label+' मोड में गलत उत्तर की सीमा पार हो गई।':'Mistake limit exceeded in '+cfg.label+' mode.';
+  document.getElementById('gameoverOv').classList.add('show');
+}
+
+// ROUNDS
+function getRound(qi){return qi<10?1:qi<30?2:3;}
+function getRoundEnd(qi){return qi<10?9:qi<30?29:49;}
+function getNextRoundStart(rnd){return rnd===1?10:rnd===2?30:-1;}
+
+function showRoundTransition(fromRound){
+  stopTimer();clearAutoNext();
+  var rndQs=fromRound===1?10:20,rndCorrect=S.correct-S.roundCorrectAtStart;
+  var rndPct=Math.round((rndCorrect/rndQs)*100);
+  document.getElementById('rStatScore').textContent=S.score;
+  document.getElementById('rStatCorrect').textContent=rndCorrect+'/'+rndQs;
+  document.getElementById('rStatPct').textContent=rndPct+'%';
+  var isEnd=(fromRound===3),nextRound=fromRound+1;
+  if(isEnd){
+    document.getElementById('roundIcon').textContent='👑';document.getElementById('roundLabel').textContent='QUIZ COMPLETE';
+    document.getElementById('roundTitle').textContent=t('completeTitle');document.getElementById('roundMsg').textContent=t('completeMsg');
+    document.getElementById('roundContinueBtn').textContent=t('completeBtn');playEpic();
+  } else if(nextRound===2){
+    document.getElementById('roundIcon').textContent='⚔️';document.getElementById('roundLabel').textContent='ROUND 2 STARTING';
+    document.getElementById('roundTitle').textContent=t('r2StartTitle');document.getElementById('roundMsg').textContent=t('r2StartMsg');
+    document.getElementById('roundContinueBtn').textContent=t('r2ContinueBtn');playBell();
+  } else {
+    document.getElementById('roundIcon').textContent='👑';document.getElementById('roundLabel').textContent='FINAL ROUND';
+    document.getElementById('roundTitle').textContent=t('finalTitle');document.getElementById('roundMsg').textContent=t('finalMsg');
+    document.getElementById('roundContinueBtn').textContent=t('finalBtn');playEpic();
+  }
+  document.getElementById('roundQuote').textContent=rndPct>=60?t('roundQuoteWin'):t('roundQuoteLow');
+  spkBurst(window.innerWidth/2,window.innerHeight*0.38,28);
+  cineTrans(function(){showScreen('roundScreen');});
+  var btn=document.getElementById('roundContinueBtn');
+  btn.onclick=function(){
+    spkEl(btn);
+    if(isEnd){cineTrans(function(){showResult();});}
+    else{S.q=getNextRoundStart(fromRound);S.roundCorrectAtStart=S.correct;S.roundScoreAtStart=S.score;cineTrans(function(){showScreen('quizScreen');renderQ();startTimer();});}
+  };
+}
+
+// QUIZ
+function renderQ(){
+  var qi=S.q,qd=Q[qi];if(!qd)return;
+  document.getElementById('liveScore').textContent=S.score;
+  document.getElementById('progTxt').textContent=t('progLabel')+(qi+1)+t('progOf');
+  document.getElementById('progFill').style.width=(((qi+1)/50)*100)+'%';
+  document.getElementById('qBadge').textContent=(LANG==='hi'?'प्रश्न ':(''+(qi+1)))+' '+(qi+1)+t('qBadgeOf');
+  document.getElementById('roundBadgeTop').textContent=getRound(qi)===3?'Final':('R'+getRound(qi));
+  var qc=document.getElementById('qCard');qc.classList.remove('q-anim');void qc.offsetWidth;
+  document.getElementById('qText').textContent=qd.q;qc.classList.add('q-anim');
+  var grid=document.getElementById('optsGrid');grid.innerHTML='';
+  for(var i=0;i<qd.opts.length;i++){
+    (function(idx){
+      var btn=document.createElement('button');btn.className='opt';
+      btn.innerHTML='<span class="opt-lbl">'+LABS[idx]+'</span><span>'+qd.opts[idx]+'</span>';
+      var prev=S.answered[qi];
+      if(prev!==null){btn.disabled=true;if(idx===qd.ans)btn.classList.add('correct');else if(prev===idx)btn.classList.add('wrong');}
+      else{btn.addEventListener('click',function(){selectAns(idx);});}
+      grid.appendChild(btn);
+    })(i);
+  }
+  var prev=S.answered[qi];
+  document.getElementById('prevBtn').disabled=(qi===0);
+  document.getElementById('skipBtn').style.display=(prev!==null)?'none':'';
+  document.getElementById('nextBtn').style.display=(prev!==null)?'':'none';
+}
+
+function selectAns(chosen){
+  if(S.answered[S.q]!==null||S.paused)return;
+  stopTimer();clearAutoNext();
+  var qd=Q[S.q],ok=(chosen===qd.ans);
+  S.answered[S.q]=chosen;
+  if(ok){S.correct++;S.score+=10;}else{S.wrong++;S.mistakesLeft--;renderHearts();}
+  var btns=document.querySelectorAll('.opt');
+  for(var i=0;i<btns.length;i++){btns[i].disabled=true;if(i===qd.ans)btns[i].classList.add('correct');else if(i===chosen&&!ok)btns[i].classList.add('wrong');}
+  document.getElementById('liveScore').textContent=S.score;
+  if(ok){var rr=btns[qd.ans].getBoundingClientRect();spkBurst(rr.left+rr.width/2,rr.top+rr.height/2,20);}
+  document.getElementById('skipBtn').style.display='none';document.getElementById('nextBtn').style.display='';
+  if(ok)playCorrect();else playWrong();
+  setTimeout(function(){showFb(ok,qd,chosen);},280);
+}
+
+function skipQ(){if(S.answered[S.q]!==null)return;S.answered[S.q]='skip';S.skipped++;stopTimer();clearAutoNext();setTimeout(advanceQ,110);}
+function goPrev(){if(S.q>0){clearAutoNext();S.q--;setTimeout(function(){renderQ();if(S.answered[S.q]===null)startTimer();},80);}}
+
+function advanceQ(){
+  clearAutoNext();
+  if(S.mistakesLeft<=0){setTimeout(triggerGameOver,120);return;}
+  var rndEnd=getRoundEnd(S.q);
+  if(S.q===rndEnd&&S.q<49){showRoundTransition(getRound(S.q));return;}
+  if(S.q<49){cineTrans(function(){S.q++;renderQ();startTimer();});}
+  else{showRoundTransition(3);}
+}
+
+// FEEDBACK
+var fbFrozen=false,fbAutoRemaining=5;
+
+function setupFbFreeze(){
+  var card=document.querySelector('.fb-card');if(!card)return;
+  function freeze(){fbFrozen=true;if(S.autoNextFbInt){clearInterval(S.autoNextFbInt);S.autoNextFbInt=null;}
+    var bar=document.getElementById('fbBar');if(bar){var computed=getComputedStyle(bar).width;bar.style.transition='none';bar.style.width=computed;}
+    document.addEventListener('mouseup',unfreeze);document.addEventListener('touchend',unfreeze);}
+  function unfreeze(){document.removeEventListener('mouseup',unfreeze);document.removeEventListener('touchend',unfreeze);if(!fbFrozen)return;fbFrozen=false;startFbAutoNext();}
+  card.addEventListener('mousedown',freeze);card.addEventListener('touchstart',freeze,{passive:true});
+}
+
+function startFbAutoNext(){
+  if(S.autoNextFbInt)clearInterval(S.autoNextFbInt);
+  var bar=document.getElementById('fbBar');
+  if(bar){bar.style.transition='width '+fbAutoRemaining+'s linear';bar.style.width='0%';}
+  document.getElementById('fbAutoTxt').textContent=fbAutoRemaining+t('fbAutoSuffix');
+  S.autoNextFbInt=setInterval(function(){
+    if(fbFrozen)return;fbAutoRemaining--;
+    document.getElementById('fbAutoTxt').textContent=fbAutoRemaining+t('fbAutoSuffix');
+    if(fbAutoRemaining<=0){clearAutoNext();closeFb();}
+  },1000);
+}
+
+function showFb(ok,qd,chosen){
+  S.fbOpen=true;fbFrozen=false;fbAutoRemaining=5;
+  document.getElementById('fbOverlay').classList.add('show');
+  var icons=ok?['🌸','🌺','🙏','✨','💛','🌟']:['😔','🙏','🕊️'];
+  document.getElementById('fbIcon').textContent=icons[Math.floor(Math.random()*icons.length)];
+  var res=document.getElementById('fbResult');
+  res.textContent=ok?(LANG==='hi'?'सही उत्तर! 🎉':'Correct! 🎉'):(LANG==='hi'?'गलत उत्तर':'Wrong Answer');
+  res.className='fb-result '+(ok?'correct':'wrong');
+  document.getElementById('fbMsg').textContent=r(ok?t('qCorrect'):t('qWrong'));
+  var html='';
+  if(ok){
+    html='<div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;"><span style="font-size:30px;flex-shrink:0;">✅</span><span style="line-height:1.55;">'+(LANG==='hi'?'सही उत्तर:':'Correct Answer:')+' <strong>'+LABS[qd.ans]+') '+qd.opts[qd.ans]+'</strong></span></div>';
+  } else {
+    html='<div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;margin-bottom:0.55rem;"><span style="font-size:30px;flex-shrink:0;">❌</span><span style="line-height:1.55;">'+(LANG==='hi'?'आपका उत्तर:':'Your Answer:')+' <strong>'+LABS[chosen]+') '+qd.opts[chosen]+'</strong></span></div>'
+      +'<div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;"><span style="font-size:30px;flex-shrink:0;">✅</span><span style="line-height:1.55;">'+(LANG==='hi'?'सही उत्तर:':'Correct Answer:')+' <strong>'+LABS[qd.ans]+') '+qd.opts[qd.ans]+'</strong></span></div>';
+  }
+  document.getElementById('fbAns').innerHTML=html;
+  document.getElementById('fbSandarbhText').textContent=qd.ref;
+  setupFbFreeze();
+  var bar=document.getElementById('fbBar');
+  if(bar){bar.style.transition='none';bar.style.width='100%';setTimeout(function(){startFbAutoNext();},50);}
+}
+
+function clearAutoNext(){fbFrozen=false;if(S.autoNextFbInt){clearInterval(S.autoNextFbInt);S.autoNextFbInt=null;}}
+function closeFb(){clearAutoNext();playWhoosh();document.getElementById('fbOverlay').classList.remove('show');S.fbOpen=false;setTimeout(advanceQ,110);}
+
+// TIMER
+var CIRC=2*Math.PI*35;
+function startTimer(){stopTimer();S.timerLeft=S.timerDef;updTimer();S.timerInt=setInterval(function(){if(S.paused||S.fbOpen)return;S.timerLeft--;updTimer();if(S.timerLeft<=0){stopTimer();if(S.answered[S.q]===null){S.answered[S.q]='timeout';S.skipped++;advanceQ();}}},1000);}
+function stopTimer(){if(S.timerInt){clearInterval(S.timerInt);S.timerInt=null;}}
+function updTimer(){var t=Math.max(0,S.timerLeft);document.getElementById('timerNum').textContent=t;var pct=t/S.timerDef,offset=CIRC*(1-pct);var arc=document.getElementById('timerArc');arc.style.strokeDashoffset=offset;arc.style.stroke=pct>0.5?'var(--gold)':pct>0.25?'#c9843c':'#b52222';}
+var timerTY=0,timerAcc=0;
+document.getElementById('timerRing').addEventListener('wheel',function(e){e.preventDefault();adjTimer(e.deltaY>0?-5:5);},{passive:false});
+document.getElementById('timerRing').addEventListener('touchstart',function(e){timerTY=e.touches[0].clientY;timerAcc=0;},{passive:true});
+document.getElementById('timerRing').addEventListener('touchmove',function(e){e.preventDefault();var dy=timerTY-e.touches[0].clientY;timerTY=e.touches[0].clientY;timerAcc+=dy;if(Math.abs(timerAcc)>=12){adjTimer(timerAcc>0?5:-5);timerAcc=0;}},{passive:false});
+function adjTimer(d){S.timerDef=Math.min(120,Math.max(10,S.timerDef+d));S.timerLeft=S.timerDef;updTimer();}
+
+// PAUSE & MENU
+function togglePause(){S.paused=!S.paused;document.getElementById('pauseOv').classList.toggle('show',S.paused);document.getElementById('pauseBtn').textContent=S.paused?'▶':'⏸';}
+function resumeQuiz(){if(S.paused)togglePause();}
+function openMenu(){document.getElementById('menuOv').classList.add('show');}
+function closeMenu(){document.getElementById('menuOv').classList.remove('show');}
+
+// RESULT
+function showResult(){
+  stopTimer();clearAutoNext();
+  var pct=Math.round((S.correct/50)*100);
+  saveHistory();showScreen('resultScreen');
+  document.getElementById('finalScore').textContent=S.score;
+  document.getElementById('finalPct').textContent=pct+'%';
+  document.getElementById('stC').textContent=S.correct;
+  document.getElementById('stW').textContent=S.wrong;
+  document.getElementById('stS').textContent=S.skipped;
+  var g,v;
+  if(pct>=90){g=t('gradeHigh');v=t('gradeHighV');}
+  else if(pct>=75){g=t('gradeGood');v=t('gradeGoodV');}
+  else if(pct>=60){g=t('gradeMed');v=t('gradeMedV');}
+  else if(pct>=40){g=t('gradeLow');v=t('gradeLowV');}
+  else{g=t('gradeVeryLow');v=t('gradeVeryLowV');}
+  document.getElementById('resGrade').textContent=g;
+  document.getElementById('resVerdict').textContent=v;
+  document.getElementById('scoreCircle').style.background='conic-gradient(var(--crimsonl) '+(pct*3.6*0.4)+'deg, var(--gold) '+(pct*3.6)+'deg, rgba(12,6,24,0.35) 0deg)';
+  spkBurst(window.innerWidth/2,window.innerHeight*0.3,36);playBell();renderHistory();
+}
+
+function restartQuiz(){clearAutoNext();stopTimer();document.getElementById('gameoverOv').classList.remove('show');document.getElementById('fbOverlay').classList.remove('show');S.fbOpen=false;spkBurst(window.innerWidth/2,window.innerHeight/2,18);cineTrans(function(){showScreen('rulesScreen');});}
+function goHome(){clearAutoNext();stopTimer();document.getElementById('gameoverOv').classList.remove('show');document.getElementById('fbOverlay').classList.remove('show');document.getElementById('menuOv').classList.remove('show');document.getElementById('pauseOv').classList.remove('show');S.fbOpen=false;S.paused=false;cineTrans(function(){showScreen('langScreen');});}
+
+// EVENTS
+document.getElementById('langEn').addEventListener('click',function(){spkEl(this);LANG='en';saveS();applyLanguageUI();spkBurst(window.innerWidth/2,window.innerHeight/2,22);setTimeout(goRules,140);});
+document.getElementById('langHi').addEventListener('click',function(){spkEl(this);LANG='hi';saveS();applyLanguageUI();spkBurst(window.innerWidth/2,window.innerHeight/2,22);setTimeout(goRules,140);});
+document.getElementById('rulesNextBtn').addEventListener('click',function(){spkEl(this);setTimeout(goDiffScreen,120);});
+document.getElementById('rulesBackBtn').addEventListener('click',function(){spkEl(this);setTimeout(function(){cineTrans(function(){showScreen('langScreen');});},120);});
+document.getElementById('dEasy').addEventListener('click',function(){spkEl(this);setTimeout(function(){selectDifficulty('easy');},120);});
+document.getElementById('dMed').addEventListener('click',function(){spkEl(this);setTimeout(function(){selectDifficulty('med');},120);});
+document.getElementById('dHard').addEventListener('click',function(){spkEl(this);setTimeout(function(){selectDifficulty('hard');},120);});
+document.getElementById('diffBackBtn').addEventListener('click',function(){spkEl(this);setTimeout(goRules,120);});
+document.getElementById('nameSaveBtn').addEventListener('click',function(){
+  var v=document.getElementById('nameInp').value.trim();
+  if(!v){showToast(LANG==='hi'?'कृपया अपना नाम लिखें 🙏':'Please enter your name 🙏');return;}
+  S.playerName=v;saveS();spkEl(this);
+  document.getElementById('nameOv').classList.remove('show');
+  setTimeout(function(){cineTrans(function(){actuallyStartQuiz();});},150);
+});
+document.getElementById('nameInp').addEventListener('keydown',function(e){if(e.key==='Enter')document.getElementById('nameSaveBtn').click();});
+document.getElementById('pauseBtn').addEventListener('click',function(){togglePause();});
+document.getElementById('menuBtn').addEventListener('click',function(){openMenu();});
+document.getElementById('prevBtn').addEventListener('click',function(){goPrev();});
+document.getElementById('skipBtn').addEventListener('click',function(){skipQ();});
+document.getElementById('nextBtn').addEventListener('click',function(){spkEl(this);playWhoosh();clearAutoNext();setTimeout(advanceQ,100);});
+document.getElementById('contBtn').addEventListener('click',function(){clearAutoNext();closeFb();});
+document.getElementById('menuOv').addEventListener('click',function(e){if(e.target===this)closeMenu();});
+document.getElementById('mResume').addEventListener('click',function(){spkEl(this);closeMenu();setTimeout(resumeQuiz,100);});
+document.getElementById('mHome').addEventListener('click',function(){spkEl(this);closeMenu();setTimeout(goHome,100);});
+document.getElementById('mRestart').addEventListener('click',function(){spkEl(this);closeMenu();setTimeout(restartQuiz,100);});
+document.getElementById('mResult').addEventListener('click',function(){spkEl(this);closeMenu();setTimeout(showResult,100);});
+document.getElementById('restartBtn').addEventListener('click',function(){spkEl(this);setTimeout(restartQuiz,120);});
+document.getElementById('homeBtn2').addEventListener('click',function(){spkEl(this);setTimeout(goHome,120);});
+document.getElementById('goRestartBtn').addEventListener('click',function(){spkEl(this);setTimeout(restartQuiz,120);});
+document.getElementById('goHomeBtn').addEventListener('click',function(){spkEl(this);setTimeout(goHome,120);});
+
+// INIT
+loadS();
+if(S.playerName)document.getElementById('nameInp').value=S.playerName;
+applyLanguageUI();
+showScreen('langScreen');
+</script>
+</body>
+</html>
+HTMLEOF
+echo "Done. File size: $(wc -c < /mnt/user-data/outputs/ch2-quiz.html) bytes"

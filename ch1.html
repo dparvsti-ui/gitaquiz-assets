@@ -1,0 +1,1226 @@
+bash
+
+cat > /mnt/user-data/outputs/chapter1-quiz.html << 'HTMLEOF'
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Bhagavad-Gita Ch.1 Quiz — ISKCON Vrindavan</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Noto+Sans+Devanagari:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#04030a;--bg2:#0a0208;
+  --crim:#6b1020;--crim2:#8b1a2e;--criml:#c0253d;--crimll:#e8405a;
+  --gold:#d4a520;--goldl:#f0c040;--goldd:#9a6f10;--goldll:#fff0a0;
+  --purp:#3a0a5a;--purpl:#5a1a80;
+  --divw:#fff8e8;--txt:#fef4d0;--muted:#c8a870;
+  --ok:#2ecc71;--bad:#e74c3c;
+  --card-bg:rgba(12,4,8,0.78);
+  --border-gold:rgba(212,165,32,0.32);
+  --border-crim:rgba(140,26,46,0.48);
+  --glow-gold:rgba(212,165,32,0.18);
+  --glow-crim:rgba(140,26,46,0.28);
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html{height:100%;overflow-x:hidden;}
+body{font-family:'Noto Sans Devanagari',sans-serif;background:var(--bg);color:var(--txt);min-height:100vh;min-height:100dvh;overflow-x:hidden;}
+#bgCanvas{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none;}
+#spkCanvas{position:fixed;top:0;left:0;width:100%;height:100%;z-index:999;pointer-events:none;}
+.fog1,.fog2{position:fixed;bottom:0;pointer-events:none;z-index:1;}
+.fog1{left:0;width:200%;height:38%;background:radial-gradient(ellipse 80% 60% at 50% 100%,rgba(30,4,10,0.65) 0%,transparent 70%);animation:fd1 20s ease-in-out infinite alternate;}
+.fog2{left:-30%;width:200%;height:28%;background:radial-gradient(ellipse 60% 50% at 40% 100%,rgba(50,4,14,0.4) 0%,transparent 70%);animation:fd2 28s ease-in-out infinite alternate;}
+@keyframes fd1{0%{transform:translateX(0) scaleX(1)}100%{transform:translateX(-8%) scaleX(1.08)}}
+@keyframes fd2{0%{transform:translateX(0)}100%{transform:translateX(10%)}}
+
+.screen{display:none;position:relative;z-index:10;min-height:100vh;min-height:100dvh;flex-direction:column;}
+.screen.active{display:flex;}
+#transOverlay{position:fixed;inset:0;z-index:800;background:#000;opacity:0;pointer-events:none;transition:opacity 0.28s ease;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeInScale{from{opacity:0;transform:scale(0.94)}to{opacity:1;transform:scale(1)}}
+.fade-in{animation:fadeIn 0.4s cubic-bezier(0.4,0,0.2,1);}
+.ripple-host{position:relative;overflow:hidden;}
+.ripple{position:absolute;border-radius:50%;background:rgba(212,165,32,0.28);transform:scale(0);animation:rippleAnim 0.55s ease-out forwards;pointer-events:none;}
+@keyframes rippleAnim{to{transform:scale(5);opacity:0;}}
+
+/* ISKCON BADGE */
+.iskcon-badge{display:flex;flex-direction:column;align-items:center;margin-bottom:0.5rem;opacity:0.88;}
+.iskcon-badge .logo{font-size:0.9rem;letter-spacing:0.18em;font-family:'Cinzel',serif;color:var(--goldl);font-weight:700;}
+.iskcon-badge .sub{font-size:0.48rem;letter-spacing:0.2em;color:var(--muted);text-transform:uppercase;margin-top:0.05rem;}
+
+/* ══ LANGUAGE SCREEN ══ */
+#langScreen{align-items:center;justify-content:center;padding:1.5rem 1.2rem;}
+.lang-wrap{width:100%;max-width:420px;display:flex;flex-direction:column;align-items:center;text-align:center;}
+.lang-chakra{width:72px;height:72px;margin:0 auto 0.9rem;position:relative;}
+.lang-chakra svg{width:100%;height:100%;animation:chakraSpin 12s linear infinite;}
+@keyframes chakraSpin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+.lang-title{font-family:'Cinzel',serif;font-size:clamp(1.6rem,5vw,2.6rem);font-weight:900;background:linear-gradient(135deg,var(--goldll) 0%,var(--goldl) 35%,var(--gold) 65%,var(--goldd) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1.1;margin-bottom:0.18rem;filter:drop-shadow(0 0 20px rgba(212,165,32,0.5));}
+.lang-sub-en{font-family:'Cinzel',serif;font-size:clamp(0.55rem,1.6vw,0.72rem);letter-spacing:0.28em;color:var(--criml);text-transform:uppercase;margin-bottom:0.1rem;}
+.lang-sub-hi{font-size:clamp(0.95rem,2.8vw,1.3rem);font-weight:600;color:var(--goldl);margin-bottom:0.6rem;text-shadow:0 0 12px rgba(212,165,32,0.45);}
+.lang-divider{display:flex;align-items:center;gap:0.7rem;margin:0.45rem 0 0.9rem;opacity:0.55;}
+.lang-divider::before,.lang-divider::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--criml),transparent);}
+.lang-divider span{color:var(--criml);font-size:0.9rem;}
+.lang-prompt{font-family:'Cinzel',serif;font-size:0.82rem;letter-spacing:0.1em;color:var(--muted);margin-bottom:1.1rem;line-height:1.6;}
+.lang-cards{display:flex;gap:0.9rem;width:100%;}
+.lang-card{flex:1;position:relative;border-radius:16px;padding:1.4rem 0.8rem;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:0.55rem;overflow:hidden;transition:transform 0.32s cubic-bezier(0.34,1.3,0.64,1),box-shadow 0.32s,border-color 0.22s;border:1px solid var(--border-gold);background:linear-gradient(145deg,rgba(12,4,8,0.82),rgba(25,8,14,0.6));backdrop-filter:blur(14px);box-shadow:0 0 24px var(--glow-crim),0 4px 18px rgba(0,0,0,0.5);}
+.lang-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--criml),transparent);opacity:0.7;}
+.lang-card::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 70% 50% at 50% 0%,rgba(140,26,46,0.1),transparent 70%);pointer-events:none;}
+.lang-card:hover{transform:translateY(-5px) scale(1.03);box-shadow:0 0 40px rgba(140,26,46,0.32),0 12px 32px rgba(0,0,0,0.5),inset 0 0 20px rgba(212,165,32,0.06);border-color:rgba(212,165,32,0.5);}
+.lang-card:active{transform:scale(0.97);}
+.lang-flag{font-size:2.4rem;filter:drop-shadow(0 2px 8px rgba(0,0,0,0.5));}
+.lang-name{font-family:'Cinzel',serif;font-size:1rem;font-weight:700;color:var(--goldl);letter-spacing:0.06em;}
+.lang-native{font-size:0.72rem;color:var(--muted);}
+.lang-btn{margin-top:0.3rem;padding:0.22rem 0.75rem;border-radius:18px;border:1px solid var(--border-gold);background:rgba(212,165,32,0.1);color:var(--goldl);font-family:'Cinzel',serif;font-size:0.58rem;letter-spacing:0.1em;}
+.lang-krishna-quote{margin-top:1rem;font-size:0.68rem;color:var(--muted);opacity:0.65;font-style:italic;line-height:1.6;max-width:320px;}
+
+/* ══ RULES SCREEN ══ */
+#rulesScreen{align-items:center;justify-content:center;padding:1.2rem;}
+.rules-card{background:var(--card-bg);border:1px solid var(--border-crim);border-radius:20px;padding:1.3rem;max-width:420px;width:100%;backdrop-filter:blur(16px);box-shadow:0 8px 40px rgba(0,0,0,0.5),0 0 30px var(--glow-crim),inset 0 1px 0 rgba(212,165,32,0.1);}
+.rules-ttl{font-family:'Cinzel',serif;font-size:0.98rem;color:var(--goldl);text-align:center;margin-bottom:0.9rem;display:flex;align-items:center;justify-content:center;gap:0.45rem;}
+.rule-item{display:flex;align-items:flex-start;gap:0.65rem;padding:0.55rem 0;border-bottom:1px solid rgba(140,26,46,0.16);}
+.rule-item:last-child{border-bottom:none;}
+.rule-ico{font-size:1.15rem;flex-shrink:0;margin-top:0.04rem;}
+.rule-txt{font-size:0.8rem;color:var(--txt);line-height:1.48;}
+.rule-txt strong{color:var(--goldl);display:block;font-size:0.7rem;margin-bottom:0.05rem;font-family:'Cinzel',serif;letter-spacing:0.05em;}
+
+/* ══ DIFFICULTY SCREEN ══ */
+#diffScreen{align-items:center;justify-content:center;padding:1.4rem 1.1rem;}
+.diff-wrap{max-width:440px;width:100%;display:flex;flex-direction:column;align-items:center;}
+.diff-ttl{font-family:'Cinzel',serif;font-size:1rem;color:var(--goldl);text-align:center;margin-bottom:0.22rem;display:flex;align-items:center;justify-content:center;gap:0.45rem;}
+.diff-sub{font-size:0.7rem;color:var(--muted);text-align:center;margin-bottom:1rem;opacity:0.8;line-height:1.5;}
+.diff-cards{display:flex;flex-direction:column;gap:0.65rem;width:100%;}
+.diff-card{position:relative;border-radius:16px;padding:0.95rem 1rem;cursor:pointer;display:flex;align-items:center;gap:0.85rem;overflow:hidden;transition:transform 0.32s cubic-bezier(0.34,1.3,0.64,1),box-shadow 0.3s;border:1px solid transparent;}
+.diff-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1.5px;opacity:0.7;}
+.diff-card:hover{transform:translateY(-4px) scale(1.012);}
+.diff-card:active{transform:scale(0.97);}
+.diff-easy{background:linear-gradient(135deg,rgba(46,204,113,0.1),rgba(6,4,12,0.6));border-color:rgba(46,204,113,0.3);}
+.diff-easy::before{background:linear-gradient(90deg,transparent,rgba(46,204,113,0.55),transparent);}
+.diff-easy:hover{box-shadow:0 12px 38px rgba(0,0,0,0.44),0 0 26px rgba(46,204,113,0.16);}
+.diff-med{background:linear-gradient(135deg,rgba(212,165,32,0.1),rgba(6,4,12,0.6));border-color:rgba(212,165,32,0.33);}
+.diff-med::before{background:linear-gradient(90deg,transparent,rgba(212,165,32,0.65),transparent);}
+.diff-med:hover{box-shadow:0 12px 38px rgba(0,0,0,0.44),0 0 26px rgba(212,165,32,0.18);}
+.diff-hard{background:linear-gradient(135deg,rgba(140,26,46,0.16),rgba(6,4,12,0.6));border-color:rgba(140,26,46,0.45);}
+.diff-hard::before{background:linear-gradient(90deg,transparent,rgba(192,37,61,0.7),transparent);}
+.diff-hard:hover{box-shadow:0 12px 38px rgba(0,0,0,0.44),0 0 28px rgba(140,26,46,0.28);}
+.diff-emoji{font-size:1.9rem;flex-shrink:0;position:relative;z-index:1;}
+.diff-info{flex:1;position:relative;z-index:1;}
+.diff-name{font-family:'Cinzel',serif;font-size:0.92rem;font-weight:700;letter-spacing:0.07em;margin-bottom:0.12rem;}
+.diff-easy .diff-name{color:#5df0a0;}.diff-med .diff-name{color:var(--goldl);}.diff-hard .diff-name{color:var(--crimll);}
+.diff-rule{font-size:0.68rem;color:var(--muted);line-height:1.38;}
+.diff-rule strong{display:block;font-size:0.62rem;}
+.diff-easy .diff-rule strong{color:#5df0a0;}.diff-med .diff-rule strong{color:var(--goldl);}.diff-hard .diff-rule strong{color:var(--crimll);}
+.diff-tag{position:relative;z-index:1;padding:0.24rem 0.62rem;border-radius:18px;font-family:'Cinzel',serif;font-size:0.55rem;letter-spacing:0.1em;font-weight:700;white-space:nowrap;flex-shrink:0;}
+.diff-easy .diff-tag{background:rgba(46,204,113,0.12);border:1px solid rgba(46,204,113,0.3);color:#5df0a0;}
+.diff-med .diff-tag{background:rgba(212,165,32,0.12);border:1px solid rgba(212,165,32,0.32);color:var(--goldl);}
+.diff-hard .diff-tag{background:rgba(140,26,46,0.16);border:1px solid rgba(140,26,46,0.45);color:var(--crimll);}
+
+/* ══ ROUND SCREEN ══ */
+#roundScreen{align-items:center;justify-content:center;padding:2rem 1.2rem;text-align:center;}
+.round-glow{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:min(80vw,380px);height:min(80vw,380px);border-radius:50%;background:radial-gradient(circle,rgba(140,26,46,0.15) 0%,rgba(212,165,32,0.06) 50%,transparent 70%);animation:rglow 2.2s ease-in-out infinite alternate;pointer-events:none;}
+@keyframes rglow{0%{transform:translate(-50%,-50%) scale(1)}100%{transform:translate(-50%,-50%) scale(1.18)}}
+.round-content{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;}
+.round-icon{font-size:3.2rem;margin-bottom:0.6rem;animation:iconBounce 0.6s cubic-bezier(0.34,1.56,0.64,1);}
+@keyframes iconBounce{from{transform:scale(0.5);opacity:0}to{transform:scale(1);opacity:1}}
+.round-label{font-family:'Cinzel',serif;font-size:clamp(0.58rem,1.8vw,0.78rem);letter-spacing:0.32em;color:var(--criml);text-transform:uppercase;margin-bottom:0.26rem;}
+.round-title{font-family:'Cinzel',serif;font-size:clamp(1.4rem,4.5vw,2.4rem);font-weight:900;background:linear-gradient(135deg,var(--goldll),var(--goldl),var(--gold),var(--goldd));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:0.4rem;}
+.round-msg{font-size:clamp(0.78rem,2.2vw,0.92rem);color:var(--muted);line-height:1.55;max-width:300px;margin-bottom:1rem;}
+.round-score-row{display:flex;gap:0.85rem;margin-bottom:1.1rem;}
+.r-stat{background:rgba(12,4,8,0.4);border:1px solid var(--border-crim);border-radius:12px;padding:0.65rem 0.9rem;text-align:center;min-width:70px;}
+.r-stat-val{font-family:'Cinzel',serif;font-size:1.2rem;font-weight:700;color:var(--goldl);}
+.r-stat-lbl{font-size:0.58rem;color:var(--muted);margin-top:0.06rem;}
+.round-quote{font-style:italic;font-size:0.73rem;color:var(--muted);opacity:0.7;max-width:280px;margin-bottom:1.1rem;line-height:1.55;}
+
+/* ══ QUIZ SCREEN ══ */
+#quizScreen{flex-direction:column;overflow:hidden;}
+.q-topbar{display:flex;align-items:center;justify-content:space-between;padding:0.48rem 0.8rem;background:rgba(4,3,10,0.94);backdrop-filter:blur(18px);border-bottom:1px solid rgba(140,26,46,0.2);flex-shrink:0;}
+.tb-score{display:flex;align-items:center;gap:0.26rem;font-family:'Cinzel',serif;font-size:0.74rem;color:var(--goldl);}
+.score-badge{background:rgba(212,165,32,0.12);border:1px solid rgba(212,165,32,0.26);border-radius:18px;padding:0.12rem 0.5rem;font-weight:700;}
+.round-badge{font-size:0.52rem;padding:0.1rem 0.4rem;border-radius:9px;background:rgba(140,26,46,0.3);border:1px solid rgba(192,37,61,0.38);color:var(--crimll);font-family:'Cinzel',serif;letter-spacing:0.05em;margin-left:0.2rem;}
+.diff-badge-top{font-size:0.5rem;padding:0.1rem 0.38rem;border-radius:9px;font-family:'Cinzel',serif;letter-spacing:0.05em;margin-left:0.2rem;font-weight:700;}
+.diff-badge-top.easy{background:rgba(46,204,113,0.16);border:1px solid rgba(46,204,113,0.32);color:#5df0a0;}
+.diff-badge-top.med{background:rgba(212,165,32,0.16);border:1px solid rgba(212,165,32,0.32);color:var(--goldl);}
+.diff-badge-top.hard{background:rgba(140,26,46,0.2);border:1px solid rgba(140,26,46,0.45);color:var(--crimll);}
+.tb-prog{flex:1;margin:0 0.5rem;display:flex;flex-direction:column;align-items:center;gap:0.14rem;}
+.prog-txt{font-size:0.56rem;color:var(--muted);}
+.prog-wrap{width:100%;max-width:150px;height:3px;background:rgba(255,255,255,0.06);border-radius:3px;overflow:hidden;}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--crim2),var(--criml),var(--gold));border-radius:3px;transition:width 0.55s cubic-bezier(0.4,0,0.2,1);}
+.tb-acts{display:flex;gap:0.24rem;}
+.icon-btn{background:rgba(140,26,46,0.1);border:1px solid rgba(140,26,46,0.24);border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:0.78rem;transition:all 0.2s;color:var(--goldl);}
+.icon-btn:hover{background:rgba(140,26,46,0.24);transform:scale(1.1);}
+.hearts-row{display:flex;gap:0.18rem;align-items:center;margin-left:0.2rem;}
+.heart{font-size:0.65rem;transition:all 0.22s;}
+.heart.lost{filter:grayscale(1);opacity:0.24;transform:scale(0.78);}
+.timer-wrap{display:flex;justify-content:center;padding:0.48rem 0 0.22rem;flex-shrink:0;}
+.timer-ring{position:relative;width:64px;height:64px;cursor:ns-resize;user-select:none;-webkit-user-select:none;}
+.timer-ring svg{width:100%;height:100%;transform:rotate(-90deg);}
+.trb{fill:none;stroke:rgba(255,255,255,0.06);stroke-width:6;}
+.trf{fill:none;stroke:var(--criml);stroke-width:6;stroke-linecap:round;stroke-dasharray:220;stroke-dashoffset:0;transition:stroke-dashoffset 0.9s linear,stroke 0.4s;filter:drop-shadow(0 0 6px var(--criml));}
+.timer-disp{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;}
+.t-num{font-family:'Cinzel',serif;font-size:1.1rem;font-weight:700;color:var(--goldl);line-height:1;}
+.t-sec{font-size:0.4rem;color:var(--muted);}
+.q-area{padding:0.26rem 0.8rem 0.55rem;flex:1;display:flex;flex-direction:column;overflow-y:auto;-webkit-overflow-scrolling:touch;}
+.q-badge{font-family:'Cinzel',serif;font-size:0.58rem;color:var(--criml);letter-spacing:0.13em;text-transform:uppercase;margin-bottom:0.48rem;opacity:0.8;}
+.q-card{background:rgba(25,4,10,0.38);border:1px solid rgba(140,26,46,0.2);border-radius:15px;padding:0.88rem;margin-bottom:0.72rem;backdrop-filter:blur(12px);position:relative;overflow:hidden;box-shadow:0 4px 22px rgba(0,0,0,0.32),inset 0 1px 0 rgba(212,165,32,0.06);}
+.q-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1.5px;background:linear-gradient(90deg,transparent,var(--criml),transparent);opacity:0.5;}
+.q-text{font-size:clamp(0.8rem,2.2vw,0.92rem);font-weight:500;line-height:1.64;color:var(--divw);}
+.q-anim{animation:qSlide 0.32s cubic-bezier(0.34,1.2,0.64,1);}
+@keyframes qSlide{from{opacity:0;transform:translateX(18px)}to{opacity:1;transform:translateX(0)}}
+.opts{display:flex;flex-direction:column;gap:0.48rem;}
+.opt{position:relative;display:flex;align-items:center;gap:0.65rem;padding:0.68rem 0.82rem;background:rgba(25,4,10,0.28);border:1px solid rgba(140,26,46,0.15);border-radius:11px;cursor:pointer;text-align:left;transition:all 0.22s cubic-bezier(0.4,0,0.2,1);overflow:hidden;width:100%;color:var(--txt);font-family:'Noto Sans Devanagari',sans-serif;font-size:clamp(0.75rem,1.9vw,0.86rem);line-height:1.48;}
+.opt:hover:not(:disabled){border-color:rgba(192,37,61,0.38);transform:translateX(3px);box-shadow:-3px 0 14px rgba(140,26,46,0.14);}
+.opt:disabled{cursor:default;}
+.opt-lbl{width:22px;height:22px;min-width:22px;border-radius:50%;background:rgba(140,26,46,0.15);border:1px solid rgba(192,37,61,0.28);display:flex;align-items:center;justify-content:center;font-family:'Cinzel',serif;font-size:0.62rem;font-weight:700;color:var(--criml);transition:all 0.2s;flex-shrink:0;}
+.opt.correct{background:rgba(46,204,113,0.1);border-color:rgba(46,204,113,0.48);box-shadow:0 0 20px rgba(46,204,113,0.18);animation:correctPulse 0.55s ease;}
+.opt.correct .opt-lbl{background:rgba(46,204,113,0.26);border-color:var(--ok);color:var(--ok);font-size:0.95rem;}
+.opt.correct::after{content:'✅';position:absolute;right:0.9rem;font-size:1.1rem;animation:checkBounce 0.42s cubic-bezier(0.34,1.56,0.64,1);}
+@keyframes correctPulse{0%{transform:scale(1)}30%{transform:scale(1.022)}100%{transform:scale(1)}}
+@keyframes checkBounce{from{transform:scale(0) rotate(-20deg);opacity:0}to{transform:scale(1) rotate(0);opacity:1}}
+.opt.wrong{background:rgba(140,26,46,0.14);border-color:rgba(192,37,61,0.55);animation:shakeWrong 0.48s ease;}
+.opt.wrong .opt-lbl{background:rgba(140,26,46,0.3);border-color:var(--criml);color:var(--crimll);font-size:0.95rem;}
+.opt.wrong::after{content:'❌';position:absolute;right:0.9rem;font-size:1.05rem;animation:checkBounce 0.34s cubic-bezier(0.34,1.56,0.64,1);}
+@keyframes shakeWrong{0%,100%{transform:translateX(0)}15%{transform:translateX(-6px)}30%{transform:translateX(6px)}45%{transform:translateX(-4px)}60%{transform:translateX(4px)}75%{transform:translateX(-2px)}}
+.q-bottom{display:flex;justify-content:space-between;align-items:center;padding:0.48rem 0.8rem 0.78rem;gap:0.5rem;flex-shrink:0;}
+.nav-btn{display:flex;align-items:center;gap:0.22rem;padding:0.48rem 0.82rem;border-radius:20px;border:1px solid rgba(140,26,46,0.22);background:rgba(12,4,8,0.35);color:var(--muted);font-family:'Noto Sans Devanagari',sans-serif;font-size:0.68rem;cursor:pointer;transition:all 0.22s;backdrop-filter:blur(6px);}
+.nav-btn:hover{background:rgba(140,26,46,0.14);border-color:rgba(192,37,61,0.35);color:var(--goldl);transform:translateY(-2px);}
+.nav-btn:disabled{opacity:0.24;cursor:default;transform:none;}
+.nxt{background:linear-gradient(135deg,rgba(140,26,46,0.22),rgba(212,165,32,0.12));border-color:rgba(212,165,32,0.34);color:var(--goldl);font-weight:600;}
+.nxt:hover:not(:disabled){background:linear-gradient(135deg,rgba(140,26,46,0.36),rgba(212,165,32,0.22));}
+
+/* ══ FEEDBACK OVERLAY ══ */
+.fb-overlay{position:fixed;inset:0;z-index:200;display:none;align-items:center;justify-content:center;padding:1.1rem;background:rgba(0,0,0,0.62);backdrop-filter:blur(8px);}
+.fb-overlay.show{display:flex;}
+.fb-card{width:100%;max-width:450px;background:rgba(6,2,12,0.97);border-radius:18px;overflow:hidden;border:1px solid var(--border-crim);box-shadow:0 24px 60px rgba(0,0,0,0.75),0 0 40px var(--glow-crim);animation:mpop 0.32s cubic-bezier(0.34,1.56,0.64,1);}
+@keyframes mpop{from{transform:scale(0.82);opacity:0}to{transform:scale(1);opacity:1}}
+.fb-top{padding:0.9rem 1rem 0.52rem;display:flex;align-items:center;gap:0.6rem;border-bottom:1px solid rgba(140,26,46,0.15);}
+.fb-icon{font-size:1.7rem;}
+.fb-result{font-family:'Cinzel',serif;font-size:0.84rem;font-weight:700;}
+.fb-result.correct{color:var(--ok);}.fb-result.wrong{color:var(--crimll);}
+.fb-msg{font-size:0.68rem;color:var(--muted);margin-top:0.07rem;}
+.fb-ans{padding:0.58rem 1rem;font-size:0.73rem;color:var(--muted);line-height:1.52;}
+.fb-ans strong{color:var(--goldl);}
+.fb-sandarbh{margin:0 1rem 0.55rem;background:rgba(25,4,10,0.55);border:1px solid rgba(212,165,32,0.2);border-radius:11px;padding:0.62rem 0.82rem;position:relative;overflow:hidden;}
+.fb-sandarbh::before{content:'';position:absolute;top:0;left:0;bottom:0;width:3px;background:linear-gradient(180deg,var(--criml),var(--gold));}
+.fb-sandarbh-label{font-family:'Cinzel',serif;font-size:0.62rem;color:var(--goldl);letter-spacing:0.09em;margin-bottom:0.22rem;display:flex;align-items:center;gap:0.3rem;}
+.fb-sandarbh-text{font-size:0.66rem;color:var(--muted);line-height:1.52;padding-left:0.1rem;}
+.fb-autonext{padding:0.26rem 1rem 0;display:flex;align-items:center;gap:0.45rem;font-size:0.58rem;color:var(--muted);}
+.fb-bar-wrap{flex:1;height:3px;background:rgba(255,255,255,0.07);border-radius:2px;overflow:hidden;}
+.fb-bar{height:100%;background:linear-gradient(90deg,var(--criml),var(--gold));border-radius:2px;width:100%;}
+.fb-acts{display:flex;gap:0.42rem;padding:0.52rem 1rem 0.82rem;}
+.cont-btn{flex:1;padding:0.5rem;border-radius:10px;border:none;background:linear-gradient(135deg,var(--crim2),var(--criml),var(--gold));color:#fff8e0;font-size:0.73rem;font-weight:700;cursor:pointer;transition:all 0.2s;font-family:'Cinzel',serif;letter-spacing:0.04em;}
+.cont-btn:hover{transform:scale(1.02);}
+
+/* ══ MENU OVERLAY ══ */
+.menu-ov{position:fixed;inset:0;z-index:250;background:rgba(0,0,0,0.72);display:none;align-items:flex-end;justify-content:center;backdrop-filter:blur(10px);}
+.menu-ov.show{display:flex;}
+.menu-card{width:100%;max-width:420px;background:rgba(6,2,12,0.98);border-radius:22px 22px 0 0;border-top:1px solid var(--border-crim);padding:1rem;animation:slideUp 0.26s ease;box-shadow:0 -8px 40px var(--glow-crim);}
+@keyframes slideUp{from{transform:translateY(100%);opacity:0}to{transform:translateY(0);opacity:1}}
+.menu-ttl{font-family:'Cinzel',serif;color:var(--goldl);text-align:center;margin-bottom:0.75rem;font-size:0.88rem;}
+.menu-item{display:flex;align-items:center;gap:0.6rem;padding:0.68rem 0.75rem;border-radius:11px;cursor:pointer;transition:all 0.2s;color:var(--txt);font-size:0.82rem;margin-bottom:0.26rem;border:1px solid transparent;}
+.menu-item:hover{background:rgba(140,26,46,0.1);border-color:rgba(140,26,46,0.2);}
+
+/* ══ PAUSE ══ */
+.pause-ov{position:fixed;inset:0;z-index:150;display:none;pointer-events:none;}
+.pause-ov.show{display:block;}
+.pause-blur{position:absolute;inset:0;background:rgba(4,2,10,0.58);backdrop-filter:blur(5px);}
+.pause-badge{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-family:'Cinzel',serif;font-size:1.5rem;color:var(--goldl);text-align:center;pointer-events:none;}
+
+/* ══ NAME MODAL ══ */
+.name-ov{position:fixed;inset:0;z-index:400;background:rgba(0,0,0,0.85);display:none;align-items:center;justify-content:center;padding:1rem;backdrop-filter:blur(14px);}
+.name-ov.show{display:flex;}
+.name-card{width:100%;max-width:360px;background:rgba(6,2,12,0.98);border:1px solid var(--border-crim);border-radius:18px;padding:1.4rem;animation:mpop 0.32s cubic-bezier(0.34,1.56,0.64,1);}
+.name-ttl{font-family:'Cinzel',serif;color:var(--goldl);font-size:0.94rem;text-align:center;margin-bottom:0.28rem;}
+.name-sub{font-size:0.7rem;color:var(--muted);text-align:center;margin-bottom:0.82rem;}
+.name-inp{width:100%;background:rgba(25,4,10,0.5);border:1px solid var(--border-crim);border-radius:11px;padding:0.6rem 0.92rem;color:var(--txt);font-family:'Noto Sans Devanagari',sans-serif;font-size:0.86rem;outline:none;margin-bottom:0.62rem;}
+.name-inp:focus{border-color:rgba(192,37,61,0.55);}
+
+/* ══ RESULT SCREEN ══ */
+#resultScreen{align-items:center;padding:1.4rem 1.1rem;overflow-y:auto;}
+.res-orn{font-size:2.5rem;margin-bottom:0.26rem;animation:iconBounce 0.7s cubic-bezier(0.34,1.56,0.64,1);}
+.res-ttl{font-family:'Cinzel',serif;font-size:clamp(1.1rem,3.2vw,1.85rem);font-weight:900;background:linear-gradient(135deg,var(--goldll),var(--goldl),var(--gold),var(--goldd));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:0.14rem;}
+.res-sub{color:var(--muted);font-size:0.73rem;margin-bottom:0.88rem;}
+.score-circle{width:118px;height:118px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;margin:0 auto 0.88rem;position:relative;background:rgba(25,4,10,0.3);}
+.score-num{font-family:'Cinzel',serif;font-size:1.85rem;font-weight:900;color:var(--goldl);line-height:1;}
+.score-den{font-size:0.64rem;color:var(--muted);}
+.score-pct{font-size:0.74rem;color:var(--criml);margin-top:0.08rem;}
+.res-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:0.48rem;width:100%;max-width:320px;margin:0 auto 0.88rem;}
+.stat-box{background:rgba(25,4,10,0.25);border:1px solid rgba(140,26,46,0.18);border-radius:11px;padding:0.58rem 0.26rem;text-align:center;}
+.stat-ico{font-size:0.88rem;}
+.stat-val{font-family:'Cinzel',serif;font-size:1.12rem;font-weight:700;color:var(--goldl);}
+.stat-lbl{font-size:0.54rem;color:var(--muted);margin-top:0.06rem;}
+.res-msg{background:rgba(25,4,10,0.25);border:1px solid rgba(140,26,46,0.14);border-radius:12px;padding:0.72rem 0.82rem;max-width:320px;width:100%;margin:0 auto 0.88rem;font-style:italic;color:var(--muted);font-size:0.76rem;line-height:1.52;}
+.res-msg strong{color:var(--goldl);display:block;margin-bottom:0.14rem;}
+.res-acts{display:flex;flex-direction:column;gap:0.42rem;width:100%;max-width:280px;margin:0 auto 0.82rem;}
+.restart-btn{padding:0.76rem;border-radius:12px;border:none;background:linear-gradient(135deg,var(--crim2),var(--criml),var(--goldl));color:#1a0a00;font-family:'Cinzel',serif;font-size:0.84rem;font-weight:700;cursor:pointer;transition:all 0.22s;}
+.restart-btn:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(140,26,46,0.35);}
+.home-btn-res{padding:0.6rem;border-radius:12px;border:1px solid var(--border-crim);background:rgba(140,26,46,0.07);color:var(--goldl);font-size:0.78rem;cursor:pointer;transition:all 0.2s;}
+.home-btn-res:hover{background:rgba(140,26,46,0.14);}
+.hist-sec{width:100%;max-width:320px;margin:0 auto;text-align:left;}
+.hist-ttl{font-family:'Cinzel',serif;font-size:0.65rem;color:var(--criml);letter-spacing:0.1em;margin-bottom:0.36rem;}
+.hist-item{display:flex;justify-content:space-between;align-items:center;padding:0.36rem 0.6rem;background:rgba(25,4,10,0.2);border-radius:8px;font-size:0.64rem;color:var(--muted);margin-bottom:0.22rem;}
+.hist-item .hs{color:var(--goldl);font-weight:600;}
+
+/* ══ GAME OVER ══ */
+.gameover-ov{position:fixed;inset:0;z-index:500;display:none;align-items:center;justify-content:center;padding:1rem;background:rgba(0,0,0,0.9);backdrop-filter:blur(16px);}
+.gameover-ov.show{display:flex;}
+.gameover-card{width:100%;max-width:350px;background:rgba(8,2,14,0.98);border:1px solid rgba(140,26,46,0.5);border-radius:20px;padding:1.6rem 1.2rem;text-align:center;animation:mpop 0.32s cubic-bezier(0.34,1.56,0.64,1);box-shadow:0 0 50px rgba(140,26,46,0.25);}
+.go-icon{font-size:2.8rem;margin-bottom:0.4rem;}
+.go-title{font-family:'Cinzel',serif;font-size:1.2rem;font-weight:900;color:var(--crimll);margin-bottom:0.22rem;}
+.go-sub{font-size:0.76rem;color:var(--muted);margin-bottom:0.5rem;line-height:1.48;}
+.go-score{font-family:'Cinzel',serif;font-size:1.6rem;color:var(--goldl);margin-bottom:0.22rem;}
+.go-msg{font-size:0.72rem;color:var(--muted);font-style:italic;margin-bottom:1rem;line-height:1.48;}
+.go-acts{display:flex;flex-direction:column;gap:0.4rem;}
+
+/* ══ BUTTONS ══ */
+.gold-btn{position:relative;padding:0.78rem 2rem;font-family:'Cinzel',serif;font-size:0.92rem;font-weight:700;letter-spacing:0.14em;border:none;border-radius:50px;cursor:pointer;overflow:hidden;background:linear-gradient(135deg,var(--crim2),var(--criml),var(--gold),var(--criml),var(--crim2));background-size:200% 200%;color:#fff8e0;margin-top:0.55rem;box-shadow:0 0 24px rgba(140,26,46,0.38),0 0 12px rgba(212,165,32,0.18),0 4px 14px rgba(0,0,0,0.4);animation:gbb 3s ease-in-out infinite,gss 5s linear infinite;transition:transform 0.2s,box-shadow 0.2s;}
+.gold-btn:hover{transform:translateY(-3px) scale(1.04);}
+.gold-btn:active{transform:scale(0.97);}
+.gold-btn::before{content:'';position:absolute;top:-50%;left:-60%;width:60%;height:200%;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.22),transparent);transform:skewX(-20deg);animation:gbs 3s ease-in-out infinite;}
+@keyframes gbb{0%,100%{box-shadow:0 0 24px rgba(140,26,46,0.38),0 0 12px rgba(212,165,32,0.18),0 4px 14px rgba(0,0,0,0.4)}50%{box-shadow:0 0 44px rgba(140,26,46,0.55),0 0 22px rgba(212,165,32,0.28),0 4px 24px rgba(0,0,0,0.4)}}
+@keyframes gss{0%{background-position:0% 50%}100%{background-position:200% 50%}}
+@keyframes gbs{0%{left:-60%}100%{left:120%}}
+.ghost-btn{padding:0.56rem 1.6rem;font-family:'Noto Sans Devanagari',sans-serif;font-size:0.82rem;border:1px solid rgba(140,26,46,0.3);border-radius:50px;background:rgba(140,26,46,0.06);color:var(--goldl);cursor:pointer;transition:all 0.2s;margin-top:0.4rem;}
+.ghost-btn:hover{background:rgba(140,26,46,0.14);border-color:rgba(192,37,61,0.48);}
+
+/* ══ TOAST ══ */
+.toast{position:fixed;top:58px;left:50%;transform:translateX(-50%) translateY(-14px);z-index:600;background:rgba(6,2,12,0.97);border:1px solid var(--border-crim);border-radius:16px;padding:0.44rem 0.88rem;font-size:0.73rem;color:var(--goldl);white-space:nowrap;opacity:0;transition:all 0.28s cubic-bezier(0.34,1.56,0.64,1);backdrop-filter:blur(14px);pointer-events:none;max-width:88vw;text-align:center;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+/* ══ LOADING ══ */
+.loading-ov{position:fixed;inset:0;z-index:600;background:rgba(0,0,0,0.8);display:none;align-items:center;justify-content:center;backdrop-filter:blur(12px);}
+.loading-ov.show{display:flex;}
+.loading-card{background:rgba(6,2,12,0.98);border:1px solid var(--border-crim);border-radius:18px;padding:1.8rem 2rem;text-align:center;animation:mpop 0.28s cubic-bezier(0.34,1.56,0.64,1);}
+.loading-spin{font-size:2.2rem;animation:spin 1s linear infinite;margin-bottom:0.6rem;}
+@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+.loading-txt{font-family:'Cinzel',serif;font-size:0.86rem;color:var(--goldl);}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:2px;}::-webkit-scrollbar-track{background:transparent;}::-webkit-scrollbar-thumb{background:rgba(140,26,46,0.3);border-radius:2px;}
+
+/* RESPONSIVE */
+@media(max-width:380px){
+  .lang-title{font-size:1.3rem;}.opt{font-size:0.72rem;padding:0.62rem 0.7rem;}
+  .timer-ring{width:56px;height:56px;}.gold-btn{padding:0.7rem 1.65rem;font-size:0.86rem;}
+  .lang-cards{gap:0.5rem;}
+}
+@media(min-width:600px){
+  #quizScreen{max-width:540px;margin:0 auto;width:100%;}
+  .opts{gap:0.62rem;}
+}
+@media(max-height:620px){
+  .lang-chakra{width:48px;height:48px;}.timer-ring{width:54px;height:54px;}
+}
+</style>
+</head>
+<body>
+<canvas id="bgCanvas"></canvas>
+<canvas id="spkCanvas"></canvas>
+<div class="fog1"></div>
+<div class="fog2"></div>
+<div id="transOverlay"></div>
+
+<!-- ══ LANGUAGE SELECTION SCREEN ══ -->
+<div id="langScreen" class="screen active">
+  <div style="display:flex;align-items:center;justify-content:center;flex:1;padding:1.5rem 1.2rem;">
+  <div class="lang-wrap">
+    <div class="iskcon-badge"><div class="logo">✦ ISKCON VRINDAVAN ✦</div><div class="sub">NBD — New Bhakta Department</div></div>
+    <div class="lang-chakra">
+      <svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="40" cy="40" r="36" fill="none" stroke="rgba(192,37,61,0.3)" stroke-width="1.5"/>
+        <circle cx="40" cy="40" r="28" fill="none" stroke="rgba(212,165,32,0.4)" stroke-width="1"/>
+        <circle cx="40" cy="40" r="6" fill="rgba(212,165,32,0.6)"/>
+        <g stroke="rgba(192,37,61,0.6)" stroke-width="1" fill="none">
+          <line x1="40" y1="4" x2="40" y2="14"/>
+          <line x1="40" y1="66" x2="40" y2="76"/>
+          <line x1="4" y1="40" x2="14" y2="40"/>
+          <line x1="66" y1="40" x2="76" y2="40"/>
+          <line x1="12.3" y1="12.3" x2="19.4" y2="19.4"/>
+          <line x1="60.6" y1="60.6" x2="67.7" y2="67.7"/>
+          <line x1="67.7" y1="12.3" x2="60.6" y2="19.4"/>
+          <line x1="19.4" y1="60.6" x2="12.3" y2="67.7"/>
+        </g>
+        <circle cx="40" cy="4" r="2.5" fill="rgba(212,165,32,0.7)"/>
+        <circle cx="40" cy="76" r="2.5" fill="rgba(212,165,32,0.7)"/>
+        <circle cx="4" cy="40" r="2.5" fill="rgba(212,165,32,0.7)"/>
+        <circle cx="76" cy="40" r="2.5" fill="rgba(212,165,32,0.7)"/>
+        <circle cx="12.3" cy="12.3" r="2" fill="rgba(192,37,61,0.6)"/>
+        <circle cx="67.7" cy="67.7" r="2" fill="rgba(192,37,61,0.6)"/>
+        <circle cx="67.7" cy="12.3" r="2" fill="rgba(192,37,61,0.6)"/>
+        <circle cx="12.3" cy="67.7" r="2" fill="rgba(192,37,61,0.6)"/>
+      </svg>
+    </div>
+    <div class="lang-sub-en">Bhagavad-Gita As It Is</div>
+    <div class="lang-title">Chapter 1</div>
+    <div class="lang-sub-hi">अध्याय १ — कुरुक्षेत्र</div>
+    <div class="lang-divider"><span>✦</span></div>
+    <div class="lang-prompt">Choose your language<br>अपनी भाषा चुनें</div>
+    <div class="lang-cards">
+      <div class="lang-card ripple-host" id="langEn">
+        <div class="lang-flag">🇬🇧</div>
+        <div class="lang-name">English</div>
+        <div class="lang-native">भगवद-गीता</div>
+        <div class="lang-btn">Select →</div>
+      </div>
+      <div class="lang-card ripple-host" id="langHi">
+        <div class="lang-flag">🇮🇳</div>
+        <div class="lang-name">हिंदी</div>
+        <div class="lang-native">Bhagavad-Gita</div>
+        <div class="lang-btn">चुनें →</div>
+      </div>
+    </div>
+    <div class="lang-krishna-quote">"सर्वधर्मान्परित्यज्य मामेकं शरणं व्रज" — Bhagavad-Gita 18.66</div>
+  </div>
+  </div>
+</div>
+
+<!-- ══ RULES SCREEN ══ -->
+<div id="rulesScreen" class="screen">
+  <div style="display:flex;align-items:center;justify-content:center;flex:1;padding:1.2rem;">
+  <div class="rules-card fade-in">
+    <div class="iskcon-badge" style="margin-bottom:0.65rem;"><div class="logo">✦ ISKCON VRINDAVAN ✦</div><div class="sub">NBD — New Bhakta Department</div></div>
+    <div class="rules-ttl" id="rulesTtl">📜 Quiz Rules</div>
+    <div class="rule-item"><div class="rule-ico">⏱️</div><div class="rule-txt"><strong id="r1h">Time Limit</strong><span id="r1t">30 seconds for each question.</span></div></div>
+    <div class="rule-item"><div class="rule-ico">🎯</div><div class="rule-txt"><strong id="r2h">Scoring</strong><span id="r2t">Correct: +10 points. No penalty for wrong/skip.</span></div></div>
+    <div class="rule-item"><div class="rule-ico">🔄</div><div class="rule-txt"><strong id="r3h">3 Rounds</strong><span id="r3t">Round 1 (Q1–10), Round 2 (Q11–30), Final (Q31–50).</span></div></div>
+    <div class="rule-item"><div class="rule-ico">💔</div><div class="rule-txt"><strong id="r4h">Difficulty</strong><span id="r4t">Easy: 5 mistakes. Medium: 2. Hard: 1 mistake.</span></div></div>
+    <div class="rule-item"><div class="rule-ico">📖</div><div class="rule-txt"><strong id="r5h">Reference</strong><span id="r5t">Each answer shows a Bhagavad-Gita reference.</span></div></div>
+    <div class="rule-item"><div class="rule-ico">🙏</div><div class="rule-txt"><strong id="r6h">Play Devotionally</strong><span id="r6t">Offer this quiz in the service of Sri Krishna.</span></div></div>
+    <div style="margin-top:0.85rem;display:flex;flex-direction:column;gap:0.38rem;">
+      <button class="gold-btn ripple-host" id="rulesNextBtn" style="margin-top:0;" id="rulesNextBtn">Continue →</button>
+      <button class="ghost-btn ripple-host" id="rulesBackBtn">← Back</button>
+    </div>
+  </div>
+  </div>
+</div>
+
+<!-- ══ DIFFICULTY SCREEN ══ -->
+<div id="diffScreen" class="screen">
+  <div style="display:flex;align-items:center;justify-content:center;flex:1;padding:1.3rem 1.1rem;">
+  <div class="diff-wrap fade-in">
+    <div class="iskcon-badge" style="margin-bottom:0.65rem;"><div class="logo">✦ ISKCON VRINDAVAN ✦</div><div class="sub">NBD — New Bhakta Department</div></div>
+    <div class="diff-ttl" id="diffTtl">⚔️ Choose Difficulty</div>
+    <div class="diff-sub" id="diffSub">Choose your level of bhakti strength.<br>Exceeding mistake limit ends the game.</div>
+    <div class="diff-cards">
+      <div class="diff-card diff-easy ripple-host" id="dEasy"><div class="diff-emoji">🟢</div><div class="diff-info"><div class="diff-name" id="dEasyName">EASY — Beginner</div><div class="diff-rule"><strong id="dEasyR">✅ 5 mistakes allowed</strong><span id="dEasyS">For new devotees.</span></div></div><div class="diff-tag" id="dEasyTag">BEGINNER</div></div>
+      <div class="diff-card diff-med ripple-host" id="dMed"><div class="diff-emoji">🟡</div><div class="diff-info"><div class="diff-name" id="dMedName">MEDIUM — Sadhak</div><div class="diff-rule"><strong id="dMedR">✅ 2 mistakes allowed</strong><span id="dMedS">For experienced seekers.</span></div></div><div class="diff-tag" id="dMedTag">SADHAK</div></div>
+      <div class="diff-card diff-hard ripple-host" id="dHard"><div class="diff-emoji">🔴</div><div class="diff-info"><div class="diff-name" id="dHardName">HARD — Vaishnav</div><div class="diff-rule"><strong id="dHardR">✅ Only 1 mistake</strong><span id="dHardS">The supreme test of knowledge.</span></div></div><div class="diff-tag" id="dHardTag">VAISHNAV</div></div>
+    </div>
+    <div style="margin-top:0.88rem;"><button class="ghost-btn ripple-host" id="diffBackBtn" style="width:100%;" id="diffBackBtn">← Back to Rules</button></div>
+  </div>
+  </div>
+</div>
+
+<!-- ══ ROUND SCREEN ══ -->
+<div id="roundScreen" class="screen">
+  <div class="round-glow"></div>
+  <div class="round-content">
+    <div class="iskcon-badge" style="margin-bottom:0.4rem;"><div class="logo">✦ ISKCON VRINDAVAN ✦</div><div class="sub">NBD — New Bhakta Department</div></div>
+    <div class="round-icon" id="roundIcon">🏆</div>
+    <div class="round-label" id="roundLabel">ROUND COMPLETE</div>
+    <div class="round-title" id="roundTitle">Round 1 Complete!</div>
+    <div class="round-msg" id="roundMsg">Haribol!</div>
+    <div class="round-score-row">
+      <div class="r-stat"><div class="r-stat-val" id="rStatScore">0</div><div class="r-stat-lbl" id="rStatScoreLbl">Points</div></div>
+      <div class="r-stat"><div class="r-stat-val" id="rStatCorrect">0</div><div class="r-stat-lbl" id="rStatCorrectLbl">Correct</div></div>
+      <div class="r-stat"><div class="r-stat-val" id="rStatPct">0%</div><div class="r-stat-lbl" id="rStatPctLbl">Success</div></div>
+    </div>
+    <div class="round-quote" id="roundQuote">"Continuity in devotion is the key to success ✨"</div>
+    <button class="gold-btn ripple-host" id="roundContinueBtn" style="margin-top:0;">Continue →</button>
+  </div>
+</div>
+
+<!-- ══ QUIZ SCREEN ══ -->
+<div id="quizScreen" class="screen">
+  <div class="q-topbar">
+    <div class="tb-score">
+      <span>⚔️</span><span class="score-badge" id="liveScore">0</span>
+      <span class="round-badge" id="roundBadgeTop">R1</span>
+      <span class="diff-badge-top easy" id="diffBadgeTop">Easy</span>
+      <div class="hearts-row" id="heartsRow"></div>
+    </div>
+    <div class="tb-prog">
+      <div class="prog-txt" id="progTxt">Q 1/50</div>
+      <div class="prog-wrap"><div class="prog-fill" id="progFill" style="width:2%"></div></div>
+    </div>
+    <div class="tb-acts">
+      <div class="icon-btn ripple-host" id="pauseBtn">⏸</div>
+      <div class="icon-btn ripple-host" id="menuBtn">☰</div>
+    </div>
+  </div>
+  <div class="timer-wrap">
+    <div class="timer-ring" id="timerRing">
+      <svg viewBox="0 0 80 80"><circle class="trb" cx="40" cy="40" r="35"/><circle class="trf" id="timerArc" cx="40" cy="40" r="35"/></svg>
+      <div class="timer-disp"><div class="t-num" id="timerNum">30</div><div class="t-sec">sec</div></div>
+    </div>
+  </div>
+  <div class="q-area">
+    <div class="q-badge" id="qBadge">Question 1 of 50</div>
+    <div class="q-card" id="qCard"><div class="q-text" id="qText">Loading...</div></div>
+    <div class="opts" id="optsGrid"></div>
+  </div>
+  <div class="q-bottom">
+    <button class="nav-btn ripple-host" id="prevBtn">◀ Prev</button>
+    <button class="nav-btn ripple-host" id="skipBtn">Skip ▶</button>
+    <button class="nav-btn nxt ripple-host" id="nextBtn" style="display:none">Next ▶</button>
+  </div>
+</div>
+
+<!-- ══ RESULT SCREEN ══ -->
+<div id="resultScreen" class="screen">
+  <div style="display:flex;align-items:center;justify-content:center;flex:1;">
+  <div style="display:flex;flex-direction:column;align-items:center;padding:1.4rem 1.1rem;width:100%;max-width:420px;">
+    <div class="iskcon-badge" style="margin-bottom:0.3rem;"><div class="logo">✦ ISKCON VRINDAVAN ✦</div><div class="sub">NBD — New Bhakta Department</div></div>
+    <div class="res-orn">🏆</div>
+    <div class="res-ttl" id="resTtl">Quiz Complete!</div>
+    <div class="res-sub" id="resSub">Jai Sri Krishna! You completed it.</div>
+    <div class="score-circle" id="scoreCircle"><div class="score-num" id="finalScore">0</div><div class="score-den">/ 500</div><div class="score-pct" id="finalPct">0%</div></div>
+    <div class="res-stats">
+      <div class="stat-box"><div class="stat-ico">✅</div><div class="stat-val" id="stC">0</div><div class="stat-lbl" id="stCLbl">Correct</div></div>
+      <div class="stat-box"><div class="stat-ico">❌</div><div class="stat-val" id="stW">0</div><div class="stat-lbl" id="stWLbl">Wrong</div></div>
+      <div class="stat-box"><div class="stat-ico">⏭️</div><div class="stat-val" id="stS">0</div><div class="stat-lbl" id="stSLbl">Skipped</div></div>
+    </div>
+    <div class="res-msg"><strong id="resGrade">🌸 Jai Shri Krishna!</strong><span id="resVerdict">You performed very well.</span></div>
+    <div class="res-acts">
+      <button class="restart-btn ripple-host" id="restartBtn">🔄 Play Again</button>
+      <button class="home-btn-res ripple-host" id="homeBtn2">🏠 Home</button>
+    </div>
+    <div class="hist-sec"><div class="hist-ttl" id="histTtl">📜 Previous Attempts</div><div id="histList"></div></div>
+  </div>
+  </div>
+</div>
+
+<!-- ══ FEEDBACK OVERLAY ══ -->
+<div class="fb-overlay" id="fbOverlay">
+  <div class="fb-card">
+    <div class="fb-top"><div class="fb-icon" id="fbIcon">🌸</div><div><div class="fb-result" id="fbResult">Correct!</div><div class="fb-msg" id="fbMsg">Hare Krishna!</div></div></div>
+    <div class="fb-ans" id="fbAns"></div>
+    <div class="fb-sandarbh" id="fbSandarbh">
+      <div class="fb-sandarbh-label">📖 Reference / संदर्भ</div>
+      <div class="fb-sandarbh-text" id="fbSandarbhText"></div>
+    </div>
+    <div class="fb-autonext"><span id="fbAutoTxt">5s to next...</span><div class="fb-bar-wrap"><div class="fb-bar" id="fbBar"></div></div></div>
+    <div class="fb-acts"><button class="cont-btn ripple-host" id="contBtn">Continue →</button></div>
+  </div>
+</div>
+
+<!-- MENU -->
+<div class="menu-ov" id="menuOv">
+  <div class="menu-card">
+    <div class="menu-ttl" id="menuTtl">🌺 Menu</div>
+    <div class="menu-item ripple-host" id="mResume"><span>▶️</span><span id="mResumeT">Resume Quiz</span></div>
+    <div class="menu-item ripple-host" id="mHome"><span>🏠</span><span id="mHomeT">Home</span></div>
+    <div class="menu-item ripple-host" id="mRestart"><span>🔄</span><span id="mRestartT">Restart</span></div>
+    <div class="menu-item ripple-host" id="mResult"><span>📊</span><span id="mResultT">View Result</span></div>
+  </div>
+</div>
+
+<!-- PAUSE -->
+<div class="pause-ov" id="pauseOv"><div class="pause-blur"></div><div class="pause-badge">⏸<br><span style="font-size:0.7rem;opacity:0.6" id="pausedTxt">Paused</span></div></div>
+
+<!-- NAME MODAL -->
+<div class="name-ov" id="nameOv">
+  <div class="name-card">
+    <div class="name-ttl" id="nameTtl">🌸 Your Name</div>
+    <div class="name-sub" id="nameSub">Enter your name</div>
+    <input class="name-inp" id="nameInp" type="text" placeholder="Your name..." maxlength="24">
+    <button class="gold-btn ripple-host" id="nameSaveBtn" style="width:100%;margin-top:0;">Save & Continue →</button>
+  </div>
+</div>
+
+<!-- GAME OVER -->
+<div class="gameover-ov" id="gameoverOv">
+  <div class="gameover-card">
+    <div class="go-icon">💔</div>
+    <div class="go-title" id="goTitle">Game Over!</div>
+    <div class="go-sub" id="goSub">Mistake limit exceeded.</div>
+    <div class="go-score" id="goScore">0 pts</div>
+    <div class="go-msg" id="goMsg">"Falling and rising — both are part of the path. 🙏"</div>
+    <div class="go-acts">
+      <button class="gold-btn ripple-host" id="goRestartBtn" style="margin-top:0;width:100%;">🔄 Play Again</button>
+      <button class="ghost-btn ripple-host" id="goHomeBtn" style="width:100%;">🏠 Home</button>
+    </div>
+  </div>
+</div>
+
+<!-- LOADING -->
+<div class="loading-ov" id="loadingOv">
+  <div class="loading-card">
+    <div class="loading-spin">⚔️</div>
+    <div class="loading-txt" id="loadingTxt">Loading Quiz...</div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ══════════════════════════════════════════
+// BILINGUAL CONTENT
+// ══════════════════════════════════════════
+var LANG = 'en'; // 'en' or 'hi'
+
+var UI = {
+  en: {
+    rulesTtl:'📜 Quiz Rules',
+    r1h:'Time Limit',r1t:'30 seconds for each question.',
+    r2h:'Scoring',r2t:'Correct: +10 points. No penalty for wrong/skip.',
+    r3h:'3 Rounds',r3t:'Round 1 (Q1–10), Round 2 (Q11–30), Final (Q31–50).',
+    r4h:'Difficulty',r4t:'Easy: 5 mistakes. Medium: 2. Hard: 1 mistake.',
+    r5h:'Reference',r5t:'Each answer shows a Bhagavad-Gita reference.',
+    r6h:'Play Devotionally',r6t:'Offer this quiz in the service of Sri Krishna.',
+    rulesNext:'Continue →', rulesBack:'← Back',
+    diffTtl:'⚔️ Choose Difficulty',
+    diffSub:'Choose your level of bhakti strength.\nExceeding mistake limit ends the game.',
+    dEasyName:'EASY — Beginner',dEasyR:'✅ 5 mistakes allowed',dEasyS:'For new devotees.',dEasyTag:'BEGINNER',
+    dMedName:'MEDIUM — Sadhak',dMedR:'✅ 2 mistakes allowed',dMedS:'For experienced seekers.',dMedTag:'SADHAK',
+    dHardName:'HARD — Vaishnav',dHardR:'✅ Only 1 mistake',dHardS:'The supreme test of knowledge.',dHardTag:'VAISHNAV',
+    diffBack:'← Back to Rules',
+    progQ:'Q ',progOf:'/50',
+    qBadge:'Question {n} of 50',
+    prevBtn:'◀ Prev',skipBtn:'Skip ▶',nextBtn:'Next ▶',
+    rStatScoreLbl:'Points',rStatCorrectLbl:'Correct',rStatPctLbl:'Success',
+    roundQuoteWin:["Victory in devotion! 🏆","Haribol! Magnificent in this Round! 🌸","Jai Sri Krishna! Keep going! 🌺"],
+    roundQuoteLow:["Never mind — do better next round 🙏","Study Gita more deeply 📖"],
+    fbContBtn:'Continue →',fbRefLabel:'📖 Reference',
+    fbAutoTxt:'s to next...',
+    menuTtl:'🌺 Menu',mResumeT:'Resume Quiz',mHomeT:'Home',mRestartT:'Restart',mResultT:'View Result',
+    pausedTxt:'Paused',
+    nameTtl:'🌸 Your Name',nameSub:'Enter your name',namePlaceholder:'Your name...',nameSaveBtn:'Save & Continue →',
+    nameToast:'Please enter your name 🙏',
+    goTitle:'Game Over!',
+    goSub:'{diff} mode — mistake limit exceeded.',
+    goMsg:['"Falling and rising — both are part of the path. 🙏"','"Do not give up — Krishna is with you! 🌸"'],
+    restartBtn:'🔄 Play Again',homeBtn:'🏠 Home',
+    resTtl:'Quiz Complete!',resSub:'Jai Sri Krishna! You completed it.',
+    stCLbl:'Correct',stWLbl:'Wrong',stSLbl:'Skipped',
+    histTtl:'📜 Previous Attempts',histNone:'No attempts yet',
+    loadingTxt:'Loading Quiz...',
+    easyLabel:'Easy',medLabel:'Medium',hardLabel:'Hard',
+    roundLabel:{r1:'ROUND 1 COMPLETE',r2:'ROUND 2 STARTING',r3:'FINAL ROUND DONE',r1s:'R2',r2s:'Final'},
+    roundTitle:{r1:'Round 1 Complete!',r2:'Round 2 Starts!',r3:'Quiz Complete!'},
+    roundMsg:{r1:'Haribol! Round 1 done. Now harder questions!',r2:'The final challenge! Krishna is with you!',r3:'You answered all 50 questions!'},
+    roundContinue:{r1:'Start Round 2 →',r2:'Final Round 👑',r3:'See Results →'},
+    correct:'Correct! 🎉',wrong:'Wrong Answer',
+    correctQuotes:["Hare Krishna! ✨","Haribol! Bhakti is progressing 🌸","Jai Sri Krishna! 🙏","Wonderful — Gita wisdom! 💛","Sri Krishna is pleased 🌺","Knowledge grows! 🌟"],
+    wrongQuotes:["Never mind — keep learning 🙏","Krishna is with you 🌸","Devotees learn from mistakes 🌺","Don't give up! ✨","Patience is the greatest virtue 💛"],
+    correct_icon:['🌸','🌺','🙏','✨','💛','🌟'],
+    wrong_icon:['😔','🙏'],
+    correctAns:'Correct: ',wrongAns:'Your answer: ',rightAns:'Correct: ',
+    resGrades:[
+      {p:90,g:'🌟 Supreme Knower!',v:'You are a deep scholar of the Bhagavad-Gita.'},
+      {p:75,g:'🌺 Outstanding Devotee!',v:'Excellent performance!'},
+      {p:60,g:'🙏 Progressing Seeker!',v:'Good effort! Study the Gita further.'},
+      {p:40,g:'🌸 Curious Devotee!',v:'Good try. Read the Gita again.'},
+      {p:0,g:'📖 Beginning Traveler!',v:'Read the Gita and try again.'}
+    ]
+  },
+  hi: {
+    rulesTtl:'📜 Quiz के नियम',
+    r1h:'समय सीमा',r1t:'प्रत्येक प्रश्न के लिए 30 सेकंड।',
+    r2h:'अंक प्रणाली',r2t:'सही: +10 अंक। गलत/छोड़ने पर कोई कटौती नहीं।',
+    r3h:'3 Rounds',r3t:'Round 1 (Q1–10), Round 2 (Q11–30), Final (Q31–50)।',
+    r4h:'कठिनाई',r4t:'Easy: 5 गलतियाँ। Medium: 2। Hard: केवल 1।',
+    r5h:'संदर्भ',r5t:'प्रत्येक उत्तर के साथ भगवद-गीता संदर्भ दिखेगा।',
+    r6h:'भक्ति भाव से खेलें',r6t:'इस Quiz को श्री कृष्ण की सेवा में अर्पित करें।',
+    rulesNext:'आगे बढ़ें →', rulesBack:'← वापस',
+    diffTtl:'⚔️ कठिनाई चुनें',
+    diffSub:'अपनी भक्ति शक्ति के अनुसार स्तर चुनें।\nगलतियों की सीमा पार होने पर खेल समाप्त।',
+    dEasyName:'EASY — सरल',dEasyR:'✅ 5 गलतियाँ क्षम्य',dEasyS:'नए भक्तों के लिए।',dEasyTag:'BEGINNER',
+    dMedName:'MEDIUM — मध्यम',dMedR:'✅ 2 गलतियाँ क्षम्य',dMedS:'अनुभवी साधकों के लिए।',dMedTag:'SADHAK',
+    dHardName:'HARD — कठिन',dHardR:'✅ केवल 1 गलती क्षम्य',dHardS:'परम ज्ञानियों की परीक्षा।',dHardTag:'VAISHNAV',
+    diffBack:'← वापस नियम',
+    progQ:'प्रश्न ',progOf:'/50',
+    qBadge:'प्रश्न {n} — 50 में से',
+    prevBtn:'◀ पिछला',skipBtn:'छोड़ें ▶',nextBtn:'अगला ▶',
+    rStatScoreLbl:'अंक',rStatCorrectLbl:'सही',rStatPctLbl:'सफलता',
+    roundQuoteWin:["हरिबोल! इस Round में शानदार! 🏆","वृंदावन की कृपा — Round पार! 🌸","जय श्री कृष्ण! आगे बढ़ते रहिए 🌺"],
+    roundQuoteLow:["कोई बात नहीं — अगले Round में बेहतर करें 🙏","गीता का और अध्ययन करें 📖"],
+    fbContBtn:'जारी रखें →',fbRefLabel:'📖 संदर्भ / Reference',
+    fbAutoTxt:'s में अगला...',
+    menuTtl:'🌺 मेनू',mResumeT:'Quiz जारी रखें',mHomeT:'होम',mRestartT:'पुनः आरंभ',mResultT:'परिणाम देखें',
+    pausedTxt:'रुका हुआ है',
+    nameTtl:'🌸 आपका नाम',nameSub:'आपका नाम दर्ज करें',namePlaceholder:'आपका नाम लिखें...',nameSaveBtn:'सहेजें और आगे बढ़ें →',
+    nameToast:'कृपया अपना नाम लिखें 🙏',
+    goTitle:'खेल समाप्त!',
+    goSub:'{diff} मोड में गलत उत्तर की सीमा पार।',
+    goMsg:['"भक्ति मार्ग पर गिरना और उठना दोनों हैं। 🙏"','"हार मत मानो — कृष्ण आपके साथ हैं! 🌸"'],
+    restartBtn:'🔄 पुनः आरंभ करें',homeBtn:'🏠 होम पर जाएं',
+    resTtl:'Quiz Complete!',resSub:'जय श्री कृष्ण! आपने पूर्ण किया',
+    stCLbl:'सही',stWLbl:'गलत',stSLbl:'छोड़े',
+    histTtl:'📜 पिछले प्रयास',histNone:'अभी तक कोई प्रयास नहीं',
+    loadingTxt:'Quiz लोड हो रहा है...',
+    easyLabel:'Easy',medLabel:'Medium',hardLabel:'Hard',
+    roundLabel:{r1:'ROUND 1 पूर्ण',r2:'ROUND 2 शुरू',r3:'FINAL ROUND पूर्ण'},
+    roundTitle:{r1:'Round 1 पूरा!',r2:'Round 2 शुरू!',r3:'Quiz पूर्ण!'},
+    roundMsg:{r1:'हरिबोल! Round 1 पूरा हुआ। अब और कठिन प्रश्न!',r2:'यह अंतिम चुनौती है! कृष्ण आपके साथ हैं!',r3:'आपने सभी 50 प्रश्न पूरे किए। जय श्री कृष्ण!'},
+    roundContinue:{r1:'Round 2 शुरू करें →',r2:'Final Round 👑',r3:'परिणाम देखें →'},
+    correct:'सही उत्तर! 🎉',wrong:'गलत उत्तर',
+    correctQuotes:["हरे कृष्ण! कृष्ण प्रसन्न हैं ✨","हरिबोल! भक्ति में प्रगति 🌸","जय श्री कृष्ण! बहुत अच्छा 🙏","राधे राधे! गीता समझ आ रही है 💛","श्री कृष्ण प्रसन्न हुए 🌺"],
+    wrongQuotes:["कोई बात नहीं — सीखते रहिए 🙏","कृष्ण आपके साथ हैं 🌸","गलती से ही सीखते हैं भक्त 🌺","हार मत मानो! ✨","धैर्य सबसे बड़ा गुण है 💛"],
+    correct_icon:['🌸','🌺','🙏','✨','💛','🌟'],
+    wrong_icon:['😔','🙏'],
+    correctAns:'सही उत्तर: ',wrongAns:'आपका उत्तर: ',rightAns:'सही उत्तर: ',
+    resGrades:[
+      {p:90,g:'🌟 परम ज्ञानी!',v:'भगवद-गीता के गहन ज्ञाता हैं आप।'},
+      {p:75,g:'🌺 उत्कृष्ट भक्त!',v:'बहुत अच्छा प्रदर्शन!'},
+      {p:60,g:'🙏 प्रगतिशील साधक!',v:'अच्छा प्रयास! गीता का और अध्ययन करें।'},
+      {p:40,g:'🌸 जिज्ञासु भक्त!',v:'प्रयास अच्छा था। पुनः पढ़ें।'},
+      {p:0,g:'📖 शुरुआती यात्री!',v:'गीता पढ़ें और पुनः प्रयास करें।'}
+    ]
+  }
+};
+
+// ══════════════════════════════════════════
+// QUESTIONS — ENGLISH
+// ══════════════════════════════════════════
+var QEN = [
+  {q:"What does the word \"dharma-ksetre\" signify in the context of the Kurukshetra war?",opts:["A place of political gathering","A place where religious rituals are performed / a place of pilgrimage","A place of vast economic trade","An ordinary barren field"],ans:1,ref:"Bg 1.1 Purport — Hindi PDF Page 60"},
+  {q:"Who was the father of the Kurus who was doubtful about the possibility of his sons' ultimate victory?",opts:["Pandu","Vidura","Dhritarashtra","Bhisma"],ans:2,ref:"Bg 1.1 Purport — Hindi PDF Page 60"},
+  {q:"To whom did King Dhritarashtra ask, \"What did they do?\" regarding the assembled armies?",opts:["Arjuna","Vyasadeva","Dronacarya","Sanjaya"],ans:3,ref:"Bg 1.1 — Hindi PDF Page 60"},
+  {q:"By whose mercy was Sanjaya able to envision the Battlefield of Kurukshetra from the King's room?",opts:["Lord Krishna","Vyasadeva","Dhritarashtra","Dronacarya"],ans:1,ref:"Bg 1.1 Purport — Hindi PDF Page 60–61"},
+  {q:"After looking over the military force of the Pandavas, whom did King Duryodhana approach to speak?",opts:["Grandfather Bhisma","Kripacarya","His teacher, Dronacarya","Lord Krishna"],ans:2,ref:"Bg 1.2 — Hindi PDF Page 62"},
+  {q:"Who expertly arranged the army of the Pandavas in military phalanx?",opts:["Arjuna","Bhima","Dhrstadyumna (the son of Drupada)","Virata"],ans:2,ref:"Bg 1.3 & Purport — Hindi PDF Page 62–63"},
+  {q:"Why did Duryodhana point out Dronacarya's \"mistake\" of teaching Drupada's son military secrets?",opts:["To make Drona angry at Drupada","So that Drona might be alert and uncompromising in the fighting","To prove Drona was a traitor to the Kurus","To convince his army to surrender"],ans:1,ref:"Bg 1.3 Purport — Hindi PDF Page 62–63"},
+  {q:"According to Duryodhana, the heroic bowmen in the Pandava army were equal in fighting to whom?",opts:["Drona and Bhisma","Krishna and Balarama","Bhima and Arjuna","Karna and Salya"],ans:2,ref:"Bg 1.4 — Hindi PDF Page 63–64"},
+  {q:"Which of the following is NOT mentioned by Duryodhana as a great fighter in the Pandava army?",opts:["Yuyudhana","Virata","Jayadratha","Drupada"],ans:2,ref:"Bg 1.4–6 — Hindi PDF Page 63–65"},
+  {q:"Who is the great chariot fighter mentioned as \"the son of Subhadra\"?",opts:["Abhimanyu","Arjuna","Bhima","Yudhisthira"],ans:0,ref:"Bg 1.6 Purport — Hindi PDF Page 65"},
+  {q:"Who among the following is listed as a captain of Duryodhana's military force?",opts:["Dhrstaketu","Cekitana","Asvatthama","Sikhandi"],ans:2,ref:"Bg 1.8 — Hindi PDF Page 66"},
+  {q:"Who is Vikarna in relation to Duryodhana?",opts:["His teacher","His grandfather","His brother","His son"],ans:2,ref:"Bg 1.8 Purport — Hindi PDF Page 66"},
+  {q:"Who is the son of Dronacarya?",opts:["Karna","Asvatthama","Bhurisrava","Vikarna"],ans:1,ref:"Bg 1.8 Purport — Hindi PDF Page 66"},
+  {q:"What was the ultimate, predetermined fate of the warriors who joined Duryodhana's side?",opts:["They would win the kingdom easily","They would negotiate a peace treaty","They would all die in the battle","They would retreat out of fear"],ans:2,ref:"Bg 1.9 Purport — Hindi PDF Page 67"},
+  {q:"How did Duryodhana estimate the overall strength of his own armed forces?",opts:["Limited","Immeasurable","Weak","Unprepared"],ans:1,ref:"Bg 1.10 — Hindi PDF Page 67"},
+  {q:"Who carefully protected the strength of the Pandavas' limited forces, according to Duryodhana?",opts:["Arjuna","Bhima","Lord Krishna","Yudhisthira"],ans:1,ref:"Bg 1.10 — Hindi PDF Page 67"},
+  {q:"Why did Duryodhana ask all his commanders to give full support to Grandfather Bhisma?",opts:["Because Bhisma was weak and cowardly","Because Bhisma was an old man and Duryodhana felt victory depended on his presence","Because Bhisma had asked for help","Because Drona was severely injured"],ans:1,ref:"Bg 1.11 Purport — Hindi PDF Page 68"},
+  {q:"What kind of sound did Bhisma's conchshell make?",opts:["Like a chirping bird","Like crashing thunder","Like the roar of a lion","Like a crying child"],ans:2,ref:"Bg 1.12 & Purport — Hindi PDF Page 69"},
+  {q:"Why did Bhisma blow his conchshell so loudly?",opts:["To scare Duryodhana","To cheer up Duryodhana and increase his joy","To call for a tactical retreat","To warn the Pandavas of a trap"],ans:1,ref:"Bg 1.12 Purport — Hindi PDF Page 69"},
+  {q:"What color were the horses yoked to the great chariot of Lord Krishna and Arjuna?",opts:["Black","Brown","White","Golden"],ans:2,ref:"Bg 1.14 — Hindi PDF Page 70"},
+  {q:"What did the sounding of Krishna and Arjuna's transcendental conchshells indicate?",opts:["That the other side had no hope of victory","That they were preparing to surrender","That it was time to rest","That they were frightened of Bhisma"],ans:0,ref:"Bg 1.14 Purport — Hindi PDF Page 70"},
+  {q:"Which name is used for Lord Krishna to signify Him as the \"husband of the goddess of fortune\"?",opts:["Hrishikesa","Madhava","Govinda","Janardana"],ans:2,ref:"Bg 1.14 Purport — Hindi PDF Page 70"},
+  {q:"What is the name of Lord Krishna's transcendental conchshell?",opts:["Devadatta","Paundra","Pancajanya","Sughosa"],ans:2,ref:"Bg 1.15 — Hindi PDF Page 71"},
+  {q:"What is the name of Arjuna's transcendental conchshell?",opts:["Pancajanya","Devadatta","Ananta-vijaya","Manipuspaka"],ans:1,ref:"Bg 1.15 — Hindi PDF Page 71"},
+  {q:"Why is Lord Krishna referred to as \"Hrishikesa\"?",opts:["Because He is the owner and director of all senses","Because He is the greatest warrior","Because He loves horses","Because He acts as a charioteer"],ans:0,ref:"Bg 1.15 Purport — Hindi PDF Page 71"},
+  {q:"Why is Bhima known as \"Vrikodara\"?",opts:["Because he plays the conchshell perfectly","Because he could eat voraciously and perform herculean tasks","Because he is the eldest brother","Because he never sleeps"],ans:1,ref:"Bg 1.15 Purport — Hindi PDF Page 71"},
+  {q:"What is the name of the terrific conchshell blown by Bhima?",opts:["Devadatta","Paundra","Sughosa","Manipuspaka"],ans:1,ref:"Bg 1.15 — Hindi PDF Page 71"},
+  {q:"Which conchshell did King Yudhisthira blow?",opts:["Pancajanya","Devadatta","Ananta-vijaya","Sughosa"],ans:2,ref:"Bg 1.16–18 — Hindi PDF Page 72"},
+  {q:"Who blew the Sughosa and Manipuspaka conchshells?",opts:["Krishna and Arjuna","Nakula and Sahadeva","Bhima and Yudhisthira","Drupada and Virata"],ans:1,ref:"Bg 1.16–18 — Hindi PDF Page 72"},
+  {q:"What was the effect of the uproarious blowing of the Pandavas' conchshells?",opts:["It shattered the hearts of the sons of Dhritarashtra","It caused a massive earthquake","It made the Kauravas laugh","It deafened everyone on the battlefield"],ans:0,ref:"Bg 1.19 — Hindi PDF Page 73"},
+  {q:"Why did the Pandavas NOT experience heart-breaking fear from the Kauravas' conchshells?",opts:["They were wearing magical armor","They had complete confidence in Lord Krishna","The Kauravas' conchshells were too quiet","They were deaf to material sounds"],ans:1,ref:"Bg 1.19 Purport — Hindi PDF Page 73"},
+  {q:"Whose emblem was marked on the flag of Arjuna's chariot?",opts:["Garuda","A fierce Lion","Hanuman (Kapi-dhvaja)","The Sun god"],ans:2,ref:"Bg 1.20 — Hindi PDF Page 74"},
+  {q:"What specific request did Arjuna make to Lord Krishna just before the battle began?",opts:["To fight on his behalf with weapons","To draw his chariot between the two armies","To blow the conchshell one more time","To negotiate a final peace treaty"],ans:1,ref:"Bg 1.21–22 — Hindi PDF Page 75"},
+  {q:"Why is Krishna addressed as \"Acyuta\" (infallible) by Arjuna?",opts:["Because He never loses a physical fight","Because He never fails in His affection and service to His devotees","Because He is the oldest person","Because He has vast wealth"],ans:1,ref:"Bg 1.21–22 Purport — Hindi PDF Page 75"},
+  {q:"Why did Arjuna want to see those assembled in the opposing army?",opts:["To count their total weapons","To see who had come wishing to please the evil-minded son of Dhritarashtra","To say a final goodbye to them","To map out the terrain"],ans:1,ref:"Bg 1.23 Purport — Hindi PDF Page 76"},
+  {q:"Whom did Arjuna see standing within the midst of both armies?",opts:["Only his worst enemies","Demigods and monsters","His fathers, grandfathers, teachers, brothers, sons, and friends","Neutral kings from other lands"],ans:2,ref:"Bg 1.26 — Hindi PDF Page 78"},
+  {q:"What was Arjuna's emotional state upon seeing all his relatives and friends ready to fight?",opts:["Extreme anger and fury","Overwhelmed with deep compassion and grief","Complete joy and excitement","Cold indifference"],ans:1,ref:"Bg 1.28–29 — Hindi PDF Page 80–81"},
+  {q:"Which of the following physical symptoms did Arjuna experience out of compassion?",opts:["His limbs were quivering","His mouth was drying up","His hair was standing on end","All of the above"],ans:3,ref:"Bg 1.28–29 — Hindi PDF Page 80–81"},
+  {q:"What is the name of Arjuna's famous bow that was slipping from his hand?",opts:["Pinaka","Sarnga","Gandiva","Vijaya"],ans:2,ref:"Bg 1.29 — Hindi PDF Page 81"},
+  {q:"According to the purport, what causes symptoms like trembling and hair standing on end in Arjuna's specific situation?",opts:["Deep spiritual ecstasy","Material fear regarding the loss of life of his relatives","The cold morning wind","Physical illness"],ans:1,ref:"Bg 1.29 Purport — Hindi PDF Page 81"},
+  {q:"Arjuna states that he sees no good in killing his own kinsmen. What does he say he does NOT desire?",opts:["A new weapon","Subsequent victory, kingdom, or happiness","To go live in the forest","To learn from Krishna"],ans:1,ref:"Bg 1.31 — Hindi PDF Page 82"},
+  {q:"According to the Vedic injunctions, how many kinds of aggressors (who can be killed without sin) are there?",opts:["Four","Five","Six","Seven"],ans:2,ref:"Bg 1.36 Purport — Hindi PDF Page 84"},
+  {q:"Which of the following is considered an \"aggressor\" according to the Vedic codes?",opts:["One who offers bad advice","One who kidnaps a wife or sets fire to a house","One who builds a competing temple","One who reads different scriptures"],ans:1,ref:"Bg 1.36 Purport — Hindi PDF Page 84"},
+  {q:"What did Arjuna argue would happen with the destruction of the dynasty?",opts:["The economy would flourish","The eternal family traditions would be vanquished","The warriors would become famous","The demigods would be pleased"],ans:1,ref:"Bg 1.39 — Hindi PDF Page 85"},
+  {q:"When family traditions are destroyed and irreligion is prominent, what happens to the women of the family?",opts:["They become military leaders","They become polluted / degraded","They inherit the kingdom","They leave the material world"],ans:1,ref:"Bg 1.40 — Hindi PDF Page 86"},
+  {q:"What is the immediate result of the degradation of womanhood, according to Arjuna?",opts:["Great economic prosperity","Unwanted progeny (Varna-sankara)","Advanced scientific education","Higher spiritual realization"],ans:1,ref:"Bg 1.40 — Hindi PDF Page 86"},
+  {q:"Where do those who destroy family traditions always dwell, according to what Arjuna has heard?",opts:["In heavenly planets","In hell","In the spiritual sky","In other universes"],ans:1,ref:"Bg 1.43 Purport — Hindi PDF Page 86"},
+  {q:"What was the process of atonement for sinful activities called in the varnasrama institution?",opts:["Prayascitta","Sannyasa","Jnana","Yoga"],ans:0,ref:"Bg 1.43 Purport — Hindi PDF Page 86"},
+  {q:"What did Arjuna say would be better for him than fighting his relatives?",opts:["To use a different type of weapon","If the sons of Dhritarashtra were to kill him unarmed and unresisting","To poison them before the battle","To run away secretly at night"],ans:1,ref:"Bg 1.45 — Hindi PDF Page 87"},
+  {q:"What did Arjuna do immediately after speaking his mind to Krishna on the battlefield?",opts:["He shot a warning arrow","He blew his conchshell again","He cast aside his bow and arrows and sat down on the chariot","He jumped off the chariot to surrender"],ans:2,ref:"Bg 1.46 — Hindi PDF Page 93"}
+];
+
+// ══════════════════════════════════════════
+// QUESTIONS — HINDI
+// ══════════════════════════════════════════
+var QHI = [
+  {q:"कुरुक्षेत्र युद्ध के संदर्भ में \"धर्म-क्षेत्रे\" शब्द का क्या अर्थ है?",opts:["एक राजनीतिक सभा का स्थान","धर्मभूमि / जहाँ धार्मिक अनुष्ठान किये जाते हैं (तीर्थस्थल)","व्यापार का स्थान","एक साधारण खाली मैदान"],ans:1,ref:"Bg 1.1 तात्पर्य — Hindi PDF पृष्ठ 60"},
+  {q:"कौरवों के पिता कौन थे जो अपने पुत्रों की विजय के प्रति अत्यधिक आशंकित थे?",opts:["पाण्डु","विदुर","धृतराष्ट्र","भीष्म"],ans:2,ref:"Bg 1.1 तात्पर्य — Hindi PDF पृष्ठ 60"},
+  {q:"राजा धृतराष्ट्र ने सेनाओं के बारे में किससे पूछा, \"उन्होंने क्या किया?\"",opts:["अर्जुन","व्यासदेव","द्रोणाचार्य","संजय"],ans:3,ref:"Bg 1.1 — Hindi PDF पृष्ठ 60"},
+  {q:"संजय किसकी कृपा से राजा के कक्ष में बैठे-बैठे कुरुक्षेत्र की युद्धभूमि को देख सकते थे?",opts:["भगवान कृष्ण","व्यासदेव","धृतराष्ट्र","द्रोणाचार्य"],ans:1,ref:"Bg 1.1 तात्पर्य — Hindi PDF पृष्ठ 60–61"},
+  {q:"पाण्डवों की सेना को देखने के बाद, राजा दुर्योधन बात करने के लिए किसके पास गया?",opts:["भीष्म पितामह","कृपाचार्य","अपने गुरु, द्रोणाचार्य","भगवान कृष्ण"],ans:2,ref:"Bg 1.2 — Hindi PDF पृष्ठ 62"},
+  {q:"पाण्डवों की सेना की सैन्य-व्यूहरचना कुशलतापूर्वक किसने की थी?",opts:["अर्जुन","भीम","धृष्टद्युम्न (द्रुपद का पुत्र)","विराट"],ans:2,ref:"Bg 1.3 व तात्पर्य — Hindi PDF पृष्ठ 62–63"},
+  {q:"दुर्योधन ने द्रुपद के पुत्र को सैन्य रहस्य सिखाने की द्रोणाचार्य की \"गलती\" की ओर इशारा क्यों किया?",opts:["द्रोण को द्रुपद पर क्रोधित करने के लिए","ताकि द्रोण युद्ध में सजग रहें और कोई समझौता न करें","यह साबित करने के लिए कि द्रोण एक गद्दार है","अपनी सेना को आत्मसमर्पण के लिए मनाने के लिए"],ans:1,ref:"Bg 1.3 तात्पर्य — Hindi PDF पृष्ठ 62–63"},
+  {q:"दुर्योधन के अनुसार, पाण्डव सेना के वीर धनुर्धर युद्ध में किसके समान थे?",opts:["द्रोण और भीष्म","कृष्ण और बलराम","भीम और अर्जुन","कर्ण और शल्य"],ans:2,ref:"Bg 1.4 — Hindi PDF पृष्ठ 63–64"},
+  {q:"दुर्योधन द्वारा पाण्डव सेना के महान योद्धाओं के रूप में इनमें से किसका उल्लेख नहीं किया गया है?",opts:["युयुधान","विराट","जयद्रथ","द्रुपद"],ans:2,ref:"Bg 1.4–6 — Hindi PDF पृष्ठ 63–65"},
+  {q:"\"सुभद्रा का पुत्र\" कहकर किस महान महारथी का उल्लेख किया गया है?",opts:["अभिमन्यु","अर्जुन","भीम","युधिष्ठिर"],ans:0,ref:"Bg 1.6 तात्पर्य — Hindi PDF पृष्ठ 65"},
+  {q:"निम्नलिखित में से किसे दुर्योधन की सैन्य शक्ति के सेनापति के रूप में सूचीबद्ध किया गया है?",opts:["धृष्टकेतु","चेकितान","अश्वत्थामा","शिखण्डी"],ans:2,ref:"Bg 1.8 — Hindi PDF पृष्ठ 66"},
+  {q:"दुर्योधन के संबंध में विकर्ण कौन है?",opts:["उसका गुरु","उसका दादा","उसका भाई","उसका पुत्र"],ans:2,ref:"Bg 1.8 तात्पर्य — Hindi PDF पृष्ठ 66"},
+  {q:"द्रोणाचार्य का पुत्र कौन है?",opts:["कर्ण","अश्वत्थामा","भूरिश्रवा","विकर्ण"],ans:1,ref:"Bg 1.8 तात्पर्य — Hindi PDF पृष्ठ 66"},
+  {q:"दुर्योधन के पक्ष में शामिल होने वाले योद्धाओं की अंतिम, पूर्व-निर्धारित नियति क्या थी?",opts:["वे आसानी से राज्य जीत लेंगे","वे शांति संधि करेंगे","वे सभी युद्ध में मारे जाएँगे","वे डर के मारे पीछे हट जाएंगे"],ans:2,ref:"Bg 1.9 तात्पर्य — Hindi PDF पृष्ठ 67"},
+  {q:"दुर्योधन ने अपनी सेना की कुल शक्ति का अनुमान कैसे लगाया?",opts:["सीमित","अपरिमेय (Immeasurable)","कमज़ोर","बिना तैयारी की"],ans:1,ref:"Bg 1.10 — Hindi PDF पृष्ठ 67"},
+  {q:"दुर्योधन के अनुसार, पाण्डवों की सीमित सेना की शक्ति की सावधानीपूर्वक रक्षा कौन कर रहा था?",opts:["अर्जुन","भीम","भगवान कृष्ण","युधिष्ठिर"],ans:1,ref:"Bg 1.10 — Hindi PDF पृष्ठ 67"},
+  {q:"दुर्योधन ने अपने सभी सेनापतियों को भीष्म पितामह को पूर्ण समर्थन देने के लिए क्यों कहा?",opts:["क्योंकि भीष्म कमज़ोर और कायर थे","क्योंकि भीष्म एक वृद्ध व्यक्ति थे और दुर्योधन को लगा कि विजय उन्हीं की उपस्थिति पर निर्भर है","क्योंकि भीष्म ने मदद मांगी थी","क्योंकि द्रोण गंभीर रूप से घायल थे"],ans:1,ref:"Bg 1.11 तात्पर्य — Hindi PDF पृष्ठ 68"},
+  {q:"भीष्म के शंख की ध्वनि कैसी थी?",opts:["चहचहाते पक्षी जैसी","कड़कती बिजली जैसी","सिंह की दहाड़ जैसी","रोते हुए बच्चे जैसी"],ans:2,ref:"Bg 1.12 व तात्पर्य — Hindi PDF पृष्ठ 69"},
+  {q:"भीष्म ने अपना शंख इतनी जोर से क्यों बजाया?",opts:["दुर्योधन को डराने के लिए","दुर्योधन का हर्ष (खुशी) बढ़ाने के लिए","पीछे हटने का आह्वान करने के लिए","पाण्डवों को जाल की चेतावनी देने के लिए"],ans:1,ref:"Bg 1.12 तात्पर्य — Hindi PDF पृष्ठ 69"},
+  {q:"भगवान कृष्ण और अर्जुन के विशाल रथ में कैसे घोड़े जुते थे?",opts:["काले","भूरे","श्वेत (सफेद)","सुनहरे"],ans:2,ref:"Bg 1.14 — Hindi PDF पृष्ठ 70"},
+  {q:"कृष्ण और अर्जुन के दिव्य शंखों के बजने का क्या संकेत था?",opts:["कि दूसरे पक्ष की विजय की कोई आशा नहीं है","कि वे आत्मसमर्पण की तैयारी कर रहे हैं","कि यह आराम करने का समय है","कि वे भीष्म से डरे हुए हैं"],ans:0,ref:"Bg 1.14 तात्पर्य — Hindi PDF पृष्ठ 70"},
+  {q:"\"भाग्य की देवी (लक्ष्मी) के पति\" के रूप में भगवान कृष्ण के लिए किस नाम का उपयोग किया गया है?",opts:["हृषीकेश","माधव","गोविन्द","जनार्दन"],ans:1,ref:"Bg 1.14 तात्पर्य — Hindi PDF पृष्ठ 70"},
+  {q:"भगवान कृष्ण के दिव्य शंख का क्या नाम है?",opts:["देवदत्त","पौण्ड्र","पाञ्चजन्य","सुघोष"],ans:2,ref:"Bg 1.15 — Hindi PDF पृष्ठ 71"},
+  {q:"अर्जुन के दिव्य शंख का क्या नाम है?",opts:["पाञ्चजन्य","देवदत्त","अनन्तविजय","मणिपुष्पक"],ans:1,ref:"Bg 1.15 — Hindi PDF पृष्ठ 71"},
+  {q:"भगवान कृष्ण को \"हृषीकेश\" क्यों कहा जाता है?",opts:["क्योंकि वे सभी इन्द्रियों के स्वामी और निर्देशक हैं","क्योंकि वे सबसे महान योद्धा हैं","क्योंकि उन्हें घोड़े पसंद हैं","क्योंकि वे सारथी के रूप में कार्य करते हैं"],ans:0,ref:"Bg 1.15 तात्पर्य — Hindi PDF पृष्ठ 71"},
+  {q:"भीम को \"वृकोदर\" क्यों कहा जाता है?",opts:["क्योंकि वे शंख पूरी तरह से बजाते हैं","क्योंकि वे अतिभोजी हैं और अतिमानवीय कार्य कर सकते हैं","क्योंकि वे सबसे बड़े भाई हैं","क्योंकि वे कभी नहीं सोते"],ans:1,ref:"Bg 1.15 तात्पर्य — Hindi PDF पृष्ठ 71"},
+  {q:"भीम द्वारा बजाये गए भयंकर शंख का क्या नाम है?",opts:["देवदत्त","पौण्ड्र","सुघोष","मणिपुष्पक"],ans:1,ref:"Bg 1.15 — Hindi PDF पृष्ठ 71"},
+  {q:"राजा युधिष्ठिर ने कौन सा शंख बजाया?",opts:["पाञ्चजन्य","देवदत्त","अनन्तविजय","सुघोष"],ans:2,ref:"Bg 1.16–18 — Hindi PDF पृष्ठ 72"},
+  {q:"सुघोष और मणिपुष्पक शंख किसने बजाये?",opts:["कृष्ण और अर्जुन","नकुल और सहदेव","भीम और युधिष्ठिर","द्रुपद और विराट"],ans:1,ref:"Bg 1.16–18 — Hindi PDF पृष्ठ 72"},
+  {q:"पाण्डवों के शंखों की कोलाहलपूर्ण ध्वनि का क्या प्रभाव हुआ?",opts:["इसने धृतराष्ट्र के पुत्रों के हृदयों को विदीर्ण कर दिया","इससे भारी भूकंप आया","इसने कौरवों को हँसाया","इसने युद्धभूमि में सभी को बहरा कर दिया"],ans:0,ref:"Bg 1.19 — Hindi PDF पृष्ठ 73"},
+  {q:"कौरवों के शंखों से पाण्डवों को हृदय-विदारक भय का अनुभव क्यों नहीं हुआ?",opts:["उन्होंने जादुई कवच पहन रखा था","उन्हें भगवान कृष्ण पर पूर्ण विश्वास था","कौरवों के शंख बहुत धीमे थे","वे भौतिक ध्वनियों के प्रति बहरे थे"],ans:1,ref:"Bg 1.19 तात्पर्य — Hindi PDF पृष्ठ 73"},
+  {q:"अर्जुन के रथ की ध्वजा (झंडे) पर किसका चिह्न अंकित था?",opts:["गरुड़","एक भयंकर सिंह","हनुमान (कपि-ध्वज)","सूर्य देव"],ans:2,ref:"Bg 1.20 — Hindi PDF पृष्ठ 74"},
+  {q:"युद्ध शुरू होने से ठीक पहले अर्जुन ने भगवान कृष्ण से क्या विशिष्ट अनुरोध किया?",opts:["हथियारों के साथ उसकी ओर से लड़ने का","उसके रथ को दोनों सेनाओं के बीच ले चलने का","एक बार फिर शंख बजाने का","अंतिम शांति संधि पर बातचीत करने का"],ans:1,ref:"Bg 1.21–22 — Hindi PDF पृष्ठ 75"},
+  {q:"अर्जुन ने कृष्ण को \"अच्युत\" क्यों कहा?",opts:["क्योंकि वे कभी शारीरिक लड़ाई नहीं हारते","क्योंकि वे अपने भक्तों के प्रति स्नेह और सेवा में कभी नहीं चूकते","क्योंकि वे सबसे उम्रदराज़ व्यक्ति हैं","क्योंकि उनके पास असीम धन है"],ans:1,ref:"Bg 1.21–22 तात्पर्य — Hindi PDF पृष्ठ 75"},
+  {q:"अर्जुन विरोधी सेना में एकत्रित लोगों को क्यों देखना चाहता था?",opts:["उनके कुल हथियारों की गिनती करने के लिए","यह देखने के लिए कि दुर्बुद्धि दुर्योधन को प्रसन्न करने की इच्छा से कौन आया है","उन्हें अंतिम विदाई देने के लिए","इलाके का नक्शा बनाने के लिए"],ans:1,ref:"Bg 1.23 तात्पर्य — Hindi PDF पृष्ठ 76"},
+  {q:"अर्जुन ने दोनों सेनाओं के मध्य में खड़े होकर किन्हें देखा?",opts:["केवल अपने सबसे बुरे दुश्मनों को","देवताओं और राक्षसों को","अपने पिताओं, पितामहों, गुरुओं, भाइयों, पुत्रों और मित्रों को","अन्य देशों के तटस्थ राजाओं को"],ans:2,ref:"Bg 1.26 — Hindi PDF पृष्ठ 78"},
+  {q:"युद्ध के लिए तैयार अपने सभी रिश्तेदारों और दोस्तों को देखकर अर्जुन की मानसिक स्थिति कैसी हो गई?",opts:["अत्यधिक क्रोध और रोष","गहरी करुणा और शोक से अभिभूत","पूर्ण खुशी और उत्साह","ठंडी उदासीनता"],ans:1,ref:"Bg 1.28–29 — Hindi PDF पृष्ठ 80–81"},
+  {q:"करुणा के कारण अर्जुन ने निम्नलिखित में से किस शारीरिक लक्षण का अनुभव किया?",opts:["उसके अंग कांप रहे थे","उसका मुँह सूख रहा था","उसके रोंगटे खड़े हो रहे थे","उपरोक्त सभी"],ans:3,ref:"Bg 1.28–29 — Hindi PDF पृष्ठ 80–81"},
+  {q:"अर्जुन के उस प्रसिद्ध धनुष का क्या नाम है जो उसके हाथ से सरक रहा था?",opts:["पिनाक","शार्ङ्ग","गाण्डीव","विजय"],ans:2,ref:"Bg 1.29 — Hindi PDF पृष्ठ 81"},
+  {q:"तात्पर्य के अनुसार, अर्जुन की विशिष्ट स्थिति में कांपने और रोंगटे खड़े होने जैसे लक्षणों का कारण क्या है?",opts:["गहरा आध्यात्मिक परमानंद","भौतिक भय (अपने रिश्तेदारों के जीवन के नुकसान के संबंध में)","सुबह की ठंडी हवा","शारीरिक बीमारी"],ans:1,ref:"Bg 1.29 तात्पर्य — Hindi PDF पृष्ठ 81"},
+  {q:"अर्जुन का कहना है कि उसे अपने स्वजनों को मारने में कोई भलाई नजर नहीं आती। वह क्या कहता है कि वह क्या नहीं चाहता है?",opts:["एक नया हथियार","इसके बाद की विजय, राज्य या सुख","जंगल में रहने जाना","कृष्ण से सीखना"],ans:1,ref:"Bg 1.31 — Hindi PDF पृष्ठ 82"},
+  {q:"वैदिक नियमों के अनुसार, कितने प्रकार के आततायी (aggressors) होते हैं जिन्हें बिना पाप के मारा जा सकता है?",opts:["चार","पांच","छह","सात"],ans:2,ref:"Bg 1.36 तात्पर्य — Hindi PDF पृष्ठ 84"},
+  {q:"वैदिक संहिताओं के अनुसार निम्नलिखित में से किसे \"आततायी\" माना जाता है?",opts:["जो बुरी सलाह देता है","जो पत्नी का अपहरण करता है या घर में आग लगाता है","जो एक प्रतिस्पर्धी मंदिर बनाता है","जो विभिन्न ग्रंथ पढ़ता है"],ans:1,ref:"Bg 1.36 तात्पर्य — Hindi PDF पृष्ठ 84"},
+  {q:"अर्जुन ने क्या तर्क दिया कि वंश के विनाश से क्या होगा?",opts:["अर्थव्यवस्था फलेगी-फूलेगी","सनातन कुल-धर्म नष्ट हो जाएंगे","योद्धा प्रसिद्ध हो जाएंगे","देवता प्रसन्न होंगे"],ans:1,ref:"Bg 1.39 — Hindi PDF पृष्ठ 85"},
+  {q:"जब कुल-धर्म नष्ट हो जाते हैं और अधर्म की प्रधानता होती है, तो परिवार की महिलाओं का क्या होता है?",opts:["वे सैन्य नेता बन जाती हैं","वे दूषित / पतित हो जाती हैं","वे राज्य की वारिस बनती हैं","वे भौतिक दुनिया छोड़ देती हैं"],ans:1,ref:"Bg 1.40 — Hindi PDF पृष्ठ 86"},
+  {q:"अर्जुन के अनुसार, स्त्रियों के पतन का तात्कालिक परिणाम क्या होता है?",opts:["महान आर्थिक समृद्धि","अवांछित संतान (वर्णसंकर)","उन्नत वैज्ञानिक शिक्षा","उच्च आध्यात्मिक बोध"],ans:1,ref:"Bg 1.40 — Hindi PDF पृष्ठ 86"},
+  {q:"अर्जुन ने जो सुना है, उसके अनुसार कुल-धर्म को नष्ट करने वाले हमेशा कहाँ वास करते हैं?",opts:["स्वर्गीय ग्रहों में","नरक में","आध्यात्मिक आकाश में","अन्य ब्रह्मांडों में"],ans:1,ref:"Bg 1.43 तात्पर्य — Hindi PDF पृष्ठ 86"},
+  {q:"वर्णाश्रम संस्था में पाप कर्मों के प्रायश्चित की प्रक्रिया को क्या कहा जाता था?",opts:["प्रायश्चित्त","संन्यास","ज्ञान","योग"],ans:0,ref:"Bg 1.43 तात्पर्य — Hindi PDF पृष्ठ 86"},
+  {q:"अर्जुन ने क्या कहा कि उसके रिश्तेदारों से लड़ने से बेहतर उसके लिए क्या होगा?",opts:["एक अलग प्रकार के हथियार का उपयोग करना","यदि धृतराष्ट्र के पुत्र उसे निहत्था और बिना विरोध किए युद्धभूमि में मार डालें","युद्ध से पहले उन्हें जहर देना","रात में चुपके से भाग जाना"],ans:1,ref:"Bg 1.45 — Hindi PDF पृष्ठ 87"},
+  {q:"युद्धभूमि में कृष्ण से अपने मन की बात कहने के तुरंत बाद अर्जुन ने क्या किया?",opts:["उसने चेतावनी का तीर चलाया","उसने फिर से अपना शंख बजाया","उसने अपना धनुष और बाण एक तरफ रख दिया और रथ पर बैठ गया","वह आत्मसमर्पण करने के लिए रथ से कूद गया"],ans:2,ref:"Bg 1.46 — Hindi PDF पृष्ठ 93"}
+];
+
+var DIFF_CONFIG={easy:{label:'Easy',labelHi:'Easy',max:5,cls:'easy'},med:{label:'Medium',labelHi:'Medium',max:2,cls:'med'},hard:{label:'Hard',labelHi:'Hard',max:1,cls:'hard'}};
+
+// ══════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════
+var S={
+  q:0,score:0,correct:0,wrong:0,skipped:0,
+  answered:new Array(50).fill(null),
+  timerDef:30,timerLeft:30,timerInt:null,
+  paused:false,fbOpen:false,
+  playerName:'',roundCorrectAtStart:0,roundScoreAtStart:0,
+  difficulty:'easy',mistakesLeft:5,autoNextFbInt:null,
+  currentScreen:'langScreen'
+};
+
+function Q(){return LANG==='en'?QEN:QHI;}
+function t(k){return UI[LANG][k]||UI['en'][k]||k;}
+
+// ══════════════════════════════════════════
+// STORAGE
+// ══════════════════════════════════════════
+function saveS(){try{localStorage.setItem('gqch1',JSON.stringify({playerName:S.playerName,lang:LANG}));}catch(e){}}
+function loadS(){try{var d=localStorage.getItem('gqch1');if(d){var p=JSON.parse(d);S.playerName=p.playerName||'';LANG=p.lang||'en';}}catch(e){}}
+function saveHistory(){try{var key='gh_ch1_'+LANG;var h=JSON.parse(localStorage.getItem(key)||'[]');h.unshift({d:new Date().toLocaleDateString(LANG==='hi'?'hi-IN':'en-IN'),s:S.score,c:S.correct,p:Math.round((S.correct/50)*100)});localStorage.setItem(key,JSON.stringify(h.slice(0,5)));}catch(e){}}
+function renderHistory(){try{var key='gh_ch1_'+LANG;var h=JSON.parse(localStorage.getItem(key)||'[]'),el=document.getElementById('histList');el.innerHTML='';if(!h.length){el.innerHTML='<div style="font-size:0.64rem;color:var(--muted);opacity:0.5">'+t('histNone')+'</div>';return;}for(var i=0;i<h.length;i++)el.innerHTML+='<div class="hist-item"><span>'+(i===0?'🔴':'⚫')+' '+h[i].d+'</span><span class="hs">'+h[i].s+' pts ('+h[i].p+'%)</span></div>';}catch(e){}}
+
+function r(arr){return arr[Math.floor(Math.random()*arr.length)];}
+
+// ══════════════════════════════════════════
+// APPLY UI LANGUAGE
+// ══════════════════════════════════════════
+function applyUI(){
+  var u=UI[LANG];
+  // Rules
+  si('rulesTtl',u.rulesTtl);si('r1h',u.r1h);si('r1t',u.r1t);si('r2h',u.r2h);si('r2t',u.r2t);si('r3h',u.r3h);si('r3t',u.r3t);si('r4h',u.r4h);si('r4t',u.r4t);si('r5h',u.r5h);si('r5t',u.r5t);si('r6h',u.r6h);si('r6t',u.r6t);
+  document.getElementById('rulesNextBtn').textContent=u.rulesNext;
+  document.getElementById('rulesBackBtn').textContent=u.rulesBack;
+  // Diff
+  si('diffTtl',u.diffTtl);si('diffSub',u.diffSub.replace('\n','\n'));
+  si('dEasyName',u.dEasyName);si('dEasyR',u.dEasyR);si('dEasyS',u.dEasyS);si('dEasyTag',u.dEasyTag);
+  si('dMedName',u.dMedName);si('dMedR',u.dMedR);si('dMedS',u.dMedS);si('dMedTag',u.dMedTag);
+  si('dHardName',u.dHardName);si('dHardR',u.dHardR);si('dHardS',u.dHardS);si('dHardTag',u.dHardTag);
+  document.getElementById('diffBackBtn').textContent=u.diffBack;
+  // Misc
+  si('menuTtl',u.menuTtl);si('mResumeT',u.mResumeT);si('mHomeT',u.mHomeT);si('mRestartT',u.mRestartT);si('mResultT',u.mResultT);
+  si('pausedTxt',u.pausedTxt);si('nameTtl',u.nameTtl);si('nameSub',u.nameSub);
+  document.getElementById('nameInp').placeholder=u.namePlaceholder||'...';
+  document.getElementById('nameSaveBtn').textContent=u.nameSaveBtn;
+  si('goTitle',u.goTitle);si('restartBtn',u.restartBtn);si('homeBtn2',u.homeBtn);
+  document.getElementById('goRestartBtn').textContent=u.restartBtn;
+  document.getElementById('goHomeBtn').textContent=u.homeBtn;
+  si('resTtl',u.resTtl);si('resSub',u.resSub);
+  si('stCLbl',u.stCLbl);si('stWLbl',u.stWLbl);si('stSLbl',u.stSLbl);
+  si('histTtl',u.histTtl);si('loadingTxt',u.loadingTxt);
+  si('contBtn',u.fbContBtn||'Continue →');
+  si('rStatScoreLbl',u.rStatScoreLbl);si('rStatCorrectLbl',u.rStatCorrectLbl);si('rStatPctLbl',u.rStatPctLbl);
+  si('prevBtn',u.prevBtn||'◀ Prev');si('skipBtn',u.skipBtn||'Skip ▶');si('nextBtn',u.nextBtn||'Next ▶');
+}
+function si(id,txt){var el=document.getElementById(id);if(el)el.textContent=txt;}
+
+// ══════════════════════════════════════════
+// HEARTS
+// ══════════════════════════════════════════
+function renderHearts(){
+  var cfg=DIFF_CONFIG[S.difficulty],row=document.getElementById('heartsRow');
+  row.innerHTML='';
+  for(var i=0;i<cfg.max;i++){var h=document.createElement('span');h.className='heart'+(i>=S.mistakesLeft?' lost':'');h.textContent='❤️';row.appendChild(h);}
+}
+
+// ══════════════════════════════════════════
+// BACKGROUND CANVAS
+// ══════════════════════════════════════════
+var bgC=document.getElementById('bgCanvas'),bgX=bgC.getContext('2d');
+var CW,CH,pts=[],bgPh=0;
+function szBg(){CW=bgC.width=window.innerWidth;CH=bgC.height=window.innerHeight;}
+szBg();window.addEventListener('resize',function(){szBg();mkPts();});
+function mkPts(){pts=[];var n=Math.min(80,Math.floor(CW*CH/11000));for(var i=0;i<n;i++)pts.push({x:Math.random()*CW,y:Math.random()*CH,r:Math.random()*1.8+0.4,dx:(Math.random()-0.5)*0.14,dy:-Math.random()*0.3-0.05,a:Math.random()*0.35+0.1,type:Math.floor(Math.random()*3)});}
+mkPts();
+function drawBg(){
+  bgX.clearRect(0,0,CW,CH);
+  var gr=bgX.createRadialGradient(CW/2,CH*0.2,0,CW/2,CH*0.5,Math.max(CW,CH)*0.95);
+  gr.addColorStop(0,'rgba(18,4,8,1)');gr.addColorStop(0.5,'rgba(8,2,12,1)');gr.addColorStop(1,'rgba(2,2,8,1)');
+  bgX.fillStyle=gr;bgX.fillRect(0,0,CW,CH);
+  // Subtle crimson ambient glow
+  var cg=bgX.createRadialGradient(CW*0.2,CH*0.3,0,CW*0.2,CH*0.3,CW*0.5);
+  cg.addColorStop(0,'rgba(100,10,25,0.06)');cg.addColorStop(1,'transparent');
+  bgX.fillStyle=cg;bgX.fillRect(0,0,CW,CH);
+  bgPh+=0.0025;
+  for(var i=0;i<pts.length;i++){
+    var p=pts[i];p.x+=p.dx;p.y+=p.dy;
+    if(p.y<-4){p.y=CH+4;p.x=Math.random()*CW;}
+    if(p.x<0)p.x=CW;if(p.x>CW)p.x=0;
+    var pu=Math.sin(bgPh+p.x*0.01)*0.15+0.85;
+    bgX.beginPath();bgX.arc(p.x,p.y,p.r*pu,0,Math.PI*2);
+    var col;
+    if(p.type===0)col='rgba(192,37,61,'+(p.a*pu)+')';
+    else if(p.type===1)col='rgba(212,165,32,'+(p.a*pu)+')';
+    else col='rgba(200,180,255,'+(p.a*pu*0.5)+')';
+    bgX.fillStyle=col;bgX.fill();
+  }
+  requestAnimationFrame(drawBg);
+}
+drawBg();
+
+// ══════════════════════════════════════════
+// SPRINKLES
+// ══════════════════════════════════════════
+var spkC=document.getElementById('spkCanvas'),spkX=spkC.getContext('2d');
+var spkPts=[],spkActive=false;
+spkC.width=window.innerWidth;spkC.height=window.innerHeight;
+window.addEventListener('resize',function(){spkC.width=window.innerWidth;spkC.height=window.innerHeight;});
+function spkBurst(x,y,n){if(!n)n=18;for(var i=0;i<n;i++){var ang=Math.random()*Math.PI*2,spd=Math.random()*3.2+0.8;spkPts.push({x:x,y:y,vx:Math.cos(ang)*spd,vy:Math.sin(ang)*spd-1.2,r:Math.random()*2.5+0.6,life:1,decay:Math.random()*0.022+0.014,type:Math.floor(Math.random()*3)});}if(!spkActive){spkActive=true;animSpk();}}
+function animSpk(){spkX.clearRect(0,0,spkC.width,spkC.height);var alive=false;for(var i=spkPts.length-1;i>=0;i--){var p=spkPts[i];p.x+=p.vx;p.y+=p.vy;p.vy+=0.07;p.vx*=0.97;p.life-=p.decay;if(p.life<=0){spkPts.splice(i,1);continue;}alive=true;spkX.save();spkX.globalAlpha=p.life*p.life;spkX.translate(p.x,p.y);var col=p.type===0?'rgba(192,37,61,1)':p.type===1?'rgba(212,165,32,1)':'rgba(255,200,180,1)';spkX.fillStyle=col;spkX.shadowBlur=5;spkX.shadowColor=col;spkX.beginPath();spkX.arc(0,0,p.r,0,Math.PI*2);spkX.fill();spkX.restore();}if(alive)requestAnimationFrame(animSpk);else spkActive=false;}
+function spkEl(el){if(!el)return;var rect=el.getBoundingClientRect();spkBurst(rect.left+rect.width/2,rect.top+rect.height/2,14);}
+
+// ══════════════════════════════════════════
+// SOUND (Premium improved)
+// ══════════════════════════════════════════
+function mkAC(){try{return window.AudioContext?new AudioContext():window.webkitAudioContext?new webkitAudioContext():null;}catch(e){return null;}}
+function playTap(){try{var ac=mkAC();if(!ac)return;var o=ac.createOscillator(),g=ac.createGain();o.connect(g);g.connect(ac.destination);o.type='sine';o.frequency.setValueAtTime(950,ac.currentTime);o.frequency.exponentialRampToValueAtTime(700,ac.currentTime+0.07);g.gain.setValueAtTime(0.05,ac.currentTime);g.gain.exponentialRampToValueAtTime(0.001,ac.currentTime+0.1);o.start();o.stop(ac.currentTime+0.12);}catch(e){}}
+function playCorrect(){try{var ac=mkAC();if(!ac)return;var freqs=[523,659,784,1047,1319];freqs.forEach(function(f,i){var o=ac.createOscillator(),g=ac.createGain(),lp=ac.createBiquadFilter();lp.type='lowpass';lp.frequency.value=3000;o.connect(lp);lp.connect(g);g.connect(ac.destination);o.type=i<2?'sine':'triangle';o.frequency.value=f;g.gain.setValueAtTime(0.18,ac.currentTime+i*0.075);g.gain.exponentialRampToValueAtTime(0.001,ac.currentTime+i*0.075+0.55);o.start(ac.currentTime+i*0.075);o.stop(ac.currentTime+i*0.075+0.6);});}catch(e){}}
+function playWrong(){
+  // Premium dramatic wrong sound ~ 1.2s
+  try{
+    var ac=mkAC();if(!ac)return;
+    // Low rumble
+    var o1=ac.createOscillator(),g1=ac.createGain();o1.connect(g1);g1.connect(ac.destination);o1.type='sawtooth';o1.frequency.setValueAtTime(220,ac.currentTime);o1.frequency.exponentialRampToValueAtTime(80,ac.currentTime+0.8);g1.gain.setValueAtTime(0.18,ac.currentTime);g1.gain.linearRampToValueAtTime(0.22,ac.currentTime+0.1);g1.gain.exponentialRampToValueAtTime(0.001,ac.currentTime+1.0);o1.start();o1.stop(ac.currentTime+1.1);
+    // Descending tone
+    var o2=ac.createOscillator(),g2=ac.createGain();o2.connect(g2);g2.connect(ac.destination);o2.type='triangle';o2.frequency.setValueAtTime(330,ac.currentTime+0.15);o2.frequency.exponentialRampToValueAtTime(180,ac.currentTime+1.0);g2.gain.setValueAtTime(0.12,ac.currentTime+0.15);g2.gain.exponentialRampToValueAtTime(0.001,ac.currentTime+1.2);o2.start(ac.currentTime+0.15);o2.stop(ac.currentTime+1.3);
+    // Subtle dissonance hit
+    var o3=ac.createOscillator(),g3=ac.createGain();o3.connect(g3);g3.connect(ac.destination);o3.type='square';o3.frequency.setValueAtTime(160,ac.currentTime);o3.frequency.exponentialRampToValueAtTime(100,ac.currentTime+0.4);g3.gain.setValueAtTime(0.08,ac.currentTime);g3.gain.exponentialRampToValueAtTime(0.001,ac.currentTime+0.5);o3.start();o3.stop(ac.currentTime+0.55);
+  }catch(e){}
+}
+function playWhoosh(){try{var ac=mkAC();if(!ac)return;var o=ac.createOscillator(),g=ac.createGain();o.connect(g);g.connect(ac.destination);o.type='sine';o.frequency.setValueAtTime(300,ac.currentTime);o.frequency.exponentialRampToValueAtTime(800,ac.currentTime+0.16);g.gain.setValueAtTime(0.09,ac.currentTime);g.gain.exponentialRampToValueAtTime(0.001,ac.currentTime+0.2);o.start();o.stop(ac.currentTime+0.22);}catch(e){}}
+function playBell(){try{var ac=mkAC();if(!ac)return;[523,783,1046,1568].forEach(function(f,i){var o=ac.createOscillator(),g=ac.createGain();o.connect(g);g.connect(ac.destination);o.type='sine';o.frequency.value=f;g.gain.setValueAtTime(0,ac.currentTime+i*0.12);g.gain.linearRampToValueAtTime(0.16,ac.currentTime+i*0.12+0.02);g.gain.exponentialRampToValueAtTime(0.001,ac.currentTime+i*0.12+1.2);o.start(ac.currentTime+i*0.12);o.stop(ac.currentTime+i*0.12+1.3);});}catch(e){}}
+function playEpic(){try{var ac=mkAC();if(!ac)return;var chord=[261,329,392,523,659,784];chord.forEach(function(f,i){var o=ac.createOscillator(),g=ac.createGain();o.connect(g);g.connect(ac.destination);o.type=i<3?'triangle':'sine';o.frequency.value=f;g.gain.setValueAtTime(0,ac.currentTime+i*0.06);g.gain.linearRampToValueAtTime(0.14,ac.currentTime+i*0.06+0.04);g.gain.exponentialRampToValueAtTime(0.001,ac.currentTime+i*0.06+1.5);o.start(ac.currentTime+i*0.06);o.stop(ac.currentTime+i*0.06+1.6);});}catch(e){}}
+
+// ══════════════════════════════════════════
+// RIPPLE
+// ══════════════════════════════════════════
+function addRipple(el,e){var rect=el.getBoundingClientRect();var x=(e.clientX||rect.left+rect.width/2)-rect.left,y=(e.clientY||rect.top+rect.height/2)-rect.top;var rr=document.createElement('span');rr.className='ripple';var size=Math.max(rect.width,rect.height)*2.2;rr.style.cssText='width:'+size+'px;height:'+size+'px;left:'+(x-size/2)+'px;top:'+(y-size/2)+'px;';el.appendChild(rr);setTimeout(function(){rr.remove();},700);}
+document.addEventListener('click',function(e){var el=e.target.closest('.ripple-host');if(el){addRipple(el,e);playTap();}});
+
+// ══════════════════════════════════════════
+// SCREEN MANAGEMENT
+// ══════════════════════════════════════════
+function cineTrans(cb){var ov=document.getElementById('transOverlay');ov.style.transition='opacity 0.2s ease';ov.style.opacity='1';setTimeout(function(){try{cb();}catch(err){console.error(err);}ov.style.transition='opacity 0.3s ease';setTimeout(function(){ov.style.opacity='0';},60);},230);}
+function showScreen(id){try{var all=document.querySelectorAll('.screen');for(var i=0;i<all.length;i++)all[i].classList.remove('active');var el=document.getElementById(id);if(!el)return;el.classList.add('active','fade-in');S.currentScreen=id;setTimeout(function(){el.classList.remove('fade-in');},450);}catch(err){console.error(err);}}
+
+// ══════════════════════════════════════════
+// NAVIGATION FLOWS
+// ══════════════════════════════════════════
+function selectLang(l){
+  LANG=l;saveS();applyUI();
+  spkBurst(window.innerWidth/2,window.innerHeight/2,22);
+  cineTrans(function(){showScreen('rulesScreen');});
+}
+function goRules(){cineTrans(function(){showScreen('rulesScreen');});}
+function goDiffScreen(){cineTrans(function(){showScreen('diffScreen');});}
+function goLang(){cineTrans(function(){showScreen('langScreen');});}
+
+function selectDifficulty(diff){
+  S.difficulty=diff;
+  spkBurst(window.innerWidth/2,window.innerHeight/2,20);
+  if(!S.playerName){setTimeout(function(){document.getElementById('nameOv').classList.add('show');},120);return;}
+  cineTrans(function(){actuallyStartQuiz();});
+}
+
+function actuallyStartQuiz(){
+  var cfg=DIFF_CONFIG[S.difficulty];
+  S.q=0;S.score=0;S.correct=0;S.wrong=0;S.skipped=0;
+  S.answered=new Array(50).fill(null);S.paused=false;S.fbOpen=false;
+  S.timerDef=30;S.timerLeft=30;S.roundCorrectAtStart=0;S.roundScoreAtStart=0;
+  S.mistakesLeft=cfg.max;
+  var db=document.getElementById('diffBadgeTop');db.textContent=LANG==='hi'?cfg.labelHi:cfg.label;db.className='diff-badge-top '+cfg.cls;
+  stopTimer();showScreen('quizScreen');renderHearts();renderQ();startTimer();
+}
+
+function triggerGameOver(){
+  stopTimer();clearAutoNext();playWrong();
+  spkBurst(window.innerWidth/2,window.innerHeight/2,10);
+  document.getElementById('goScore').textContent=S.score+' pts';
+  var msgs=t('goMsg');document.getElementById('goMsg').textContent=msgs[Math.floor(Math.random()*msgs.length)];
+  var cfg=DIFF_CONFIG[S.difficulty];
+  document.getElementById('goSub').textContent=t('goSub').replace('{diff}',LANG==='hi'?cfg.labelHi:cfg.label);
+  document.getElementById('gameoverOv').classList.add('show');
+}
+
+// ══════════════════════════════════════════
+// ROUND LOGIC
+// ══════════════════════════════════════════
+function getRound(qi){return qi<10?1:qi<30?2:3;}
+function getRoundEnd(qi){return qi<10?9:qi<30?29:49;}
+function getNextRoundStart(rnd){return rnd===1?10:rnd===2?30:-1;}
+
+function showRoundTransition(fromRound){
+  stopTimer();clearAutoNext();
+  var rndQs=fromRound===1?10:20,rndCorrect=S.correct-S.roundCorrectAtStart;
+  var rndPct=Math.round((rndCorrect/rndQs)*100);
+  document.getElementById('rStatScore').textContent=S.score;
+  document.getElementById('rStatCorrect').textContent=rndCorrect+'/'+rndQs;
+  document.getElementById('rStatPct').textContent=rndPct+'%';
+  var rl=t('roundLabel'),rt=t('roundTitle'),rm=t('roundMsg'),rc=t('roundContinue');
+  var isEnd=(fromRound===3),nextRound=fromRound+1;
+  if(isEnd){
+    document.getElementById('roundIcon').textContent='👑';
+    document.getElementById('roundLabel').textContent=rl.r3||'FINAL ROUND DONE';
+    document.getElementById('roundTitle').textContent=rt.r3||'Quiz Complete!';
+    document.getElementById('roundMsg').textContent=rm.r3||'You answered all 50!';
+    document.getElementById('roundContinueBtn').textContent=rc.r3||'See Results →';
+    playEpic();
+  } else if(nextRound===2){
+    document.getElementById('roundIcon').textContent='⚔️';
+    document.getElementById('roundLabel').textContent=rl.r1||'ROUND 2 STARTING';
+    document.getElementById('roundTitle').textContent=rt.r1||'Round 1 Complete!';
+    document.getElementById('roundMsg').textContent=rm.r1||'Keep going!';
+    document.getElementById('roundContinueBtn').textContent=rc.r1||'Start Round 2 →';
+    playBell();
+  } else {
+    document.getElementById('roundIcon').textContent='👑';
+    document.getElementById('roundLabel').textContent=rl.r2||'FINAL ROUND';
+    document.getElementById('roundTitle').textContent=rt.r2||'Final Round!';
+    document.getElementById('roundMsg').textContent=rm.r2||'Final challenge!';
+    document.getElementById('roundContinueBtn').textContent=rc.r2||'Final Round 👑';
+    playEpic();
+  }
+  var qArr=rndPct>=60?t('roundQuoteWin'):t('roundQuoteLow');
+  document.getElementById('roundQuote').textContent=r(qArr);
+  spkBurst(window.innerWidth/2,window.innerHeight*0.38,28);
+  cineTrans(function(){showScreen('roundScreen');});
+  var btn=document.getElementById('roundContinueBtn');
+  btn.onclick=function(){
+    spkEl(btn);
+    if(isEnd){cineTrans(function(){showResult();});}
+    else{S.q=getNextRoundStart(fromRound);S.roundCorrectAtStart=S.correct;S.roundScoreAtStart=S.score;cineTrans(function(){showScreen('quizScreen');renderQ();startTimer();});}
+  };
+}
+
+// ══════════════════════════════════════════
+// QUIZ RENDER
+// ══════════════════════════════════════════
+var LABS=['A','B','C','D'];
+function renderQ(){
+  var qi=S.q,QA=Q(),qd=QA[qi];if(!qd)return;
+  document.getElementById('liveScore').textContent=S.score;
+  document.getElementById('progTxt').textContent=t('progQ')+(qi+1)+t('progOf');
+  document.getElementById('progFill').style.width=(((qi+1)/50)*100)+'%';
+  var u=UI[LANG];
+  document.getElementById('qBadge').textContent=(u.qBadge||'Q {n} of 50').replace('{n}',qi+1);
+  document.getElementById('roundBadgeTop').textContent=getRound(qi)===3?'Final':('R'+getRound(qi));
+  var qc=document.getElementById('qCard');qc.classList.remove('q-anim');void qc.offsetWidth;
+  document.getElementById('qText').textContent=qd.q;qc.classList.add('q-anim');
+  var grid=document.getElementById('optsGrid');grid.innerHTML='';
+  for(var i=0;i<qd.opts.length;i++){
+    (function(idx){
+      var btn=document.createElement('button');btn.className='opt ripple-host';
+      btn.innerHTML='<span class="opt-lbl">'+LABS[idx]+'</span><span>'+qd.opts[idx]+'</span>';
+      var prev=S.answered[qi];
+      if(prev!==null){btn.disabled=true;if(idx===qd.ans)btn.classList.add('correct');else if(prev===idx)btn.classList.add('wrong');}
+      else{btn.addEventListener('click',function(){selectAns(idx);});}
+      grid.appendChild(btn);
+    })(i);
+  }
+  var prev=S.answered[qi];
+  document.getElementById('prevBtn').disabled=(qi===0);
+  document.getElementById('skipBtn').style.display=(prev!==null)?'none':'';
+  document.getElementById('nextBtn').style.display=(prev!==null)?'':'none';
+}
+
+// ══════════════════════════════════════════
+// ANSWER SELECTION
+// ══════════════════════════════════════════
+function selectAns(chosen){
+  if(S.answered[S.q]!==null||S.paused)return;
+  stopTimer();clearAutoNext();
+  var QA=Q(),qd=QA[S.q],ok=(chosen===qd.ans);
+  S.answered[S.q]=chosen;
+  if(ok){S.correct++;S.score+=10;}else{S.wrong++;S.mistakesLeft--;renderHearts();}
+  var btns=document.querySelectorAll('.opt');
+  for(var i=0;i<btns.length;i++){btns[i].disabled=true;if(i===qd.ans)btns[i].classList.add('correct');else if(i===chosen&&!ok)btns[i].classList.add('wrong');}
+  document.getElementById('liveScore').textContent=S.score;
+  if(ok){var rr=btns[qd.ans].getBoundingClientRect();spkBurst(rr.left+rr.width/2,rr.top+rr.height/2,22);}
+  document.getElementById('skipBtn').style.display='none';
+  document.getElementById('nextBtn').style.display='';
+  if(ok)playCorrect();else playWrong();
+  setTimeout(function(){showFb(ok,qd,chosen);},300);
+}
+
+function skipQ(){if(S.answered[S.q]!==null)return;S.answered[S.q]='skip';S.skipped++;stopTimer();clearAutoNext();setTimeout(advanceQ,110);}
+function goPrev(){if(S.q>0){clearAutoNext();S.q--;setTimeout(function(){renderQ();if(S.answered[S.q]===null)startTimer();},80);}}
+
+function advanceQ(){
+  clearAutoNext();
+  if(S.mistakesLeft<=0){setTimeout(triggerGameOver,120);return;}
+  var rndEnd=getRoundEnd(S.q);
+  if(S.q===rndEnd&&S.q<49){showRoundTransition(getRound(S.q));return;}
+  if(S.q<49){cineTrans(function(){S.q++;renderQ();startTimer();});}
+  else{showRoundTransition(3);}
+}
+
+// ══════════════════════════════════════════
+// FEEDBACK
+// ══════════════════════════════════════════
+var fbFrozen=false,fbAutoRemaining=5;
+function setupFbFreeze(){
+  var card=document.querySelector('.fb-card');if(!card)return;
+  function freeze(){fbFrozen=true;if(S.autoNextFbInt){clearInterval(S.autoNextFbInt);S.autoNextFbInt=null;}var bar=document.getElementById('fbBar');if(bar){var cw=getComputedStyle(bar).width;bar.style.transition='none';bar.style.width=cw;}document.addEventListener('mouseup',unfreeze);document.addEventListener('touchend',unfreeze);}
+  function unfreeze(){document.removeEventListener('mouseup',unfreeze);document.removeEventListener('touchend',unfreeze);if(!fbFrozen)return;fbFrozen=false;startFbAutoNext();}
+  card.addEventListener('mousedown',freeze);card.addEventListener('touchstart',freeze,{passive:true});
+}
+function startFbAutoNext(){
+  if(S.autoNextFbInt)clearInterval(S.autoNextFbInt);
+  var bar=document.getElementById('fbBar');if(bar){bar.style.transition='width '+fbAutoRemaining+'s linear';bar.style.width='0%';}
+  var at=document.getElementById('fbAutoTxt');if(at)at.textContent=fbAutoRemaining+(t('fbAutoTxt')||'s to next...');
+  S.autoNextFbInt=setInterval(function(){if(fbFrozen)return;fbAutoRemaining--;var at2=document.getElementById('fbAutoTxt');if(at2)at2.textContent=fbAutoRemaining+(t('fbAutoTxt')||'s to next...');if(fbAutoRemaining<=0){clearAutoNext();closeFb();}},1000);
+}
+function showFb(ok,qd,chosen){
+  S.fbOpen=true;fbFrozen=false;fbAutoRemaining=5;
+  document.getElementById('fbOverlay').classList.add('show');
+  var icons=ok?t('correct_icon'):t('wrong_icon');
+  document.getElementById('fbIcon').textContent=icons[Math.floor(Math.random()*icons.length)];
+  var res=document.getElementById('fbResult');res.textContent=ok?t('correct'):t('wrong');res.className='fb-result '+(ok?'correct':'wrong');
+  document.getElementById('fbMsg').textContent=r(ok?t('correctQuotes'):t('wrongQuotes'));
+  var html='';
+  if(ok){html='<div style="display:flex;align-items:center;gap:0.55rem;flex-wrap:wrap;"><span style="font-size:32px;line-height:1;flex-shrink:0;">✅</span><span>'+t('correctAns')+'<strong>'+LABS[qd.ans]+') '+qd.opts[qd.ans]+'</strong></span></div>';}
+  else{html='<div style="display:flex;align-items:center;gap:0.55rem;flex-wrap:wrap;margin-bottom:0.55rem;"><span style="font-size:32px;line-height:1;flex-shrink:0;">❌</span><span>'+t('wrongAns')+'<strong>'+LABS[chosen]+') '+qd.opts[chosen]+'</strong></span></div><div style="display:flex;align-items:center;gap:0.55rem;flex-wrap:wrap;"><span style="font-size:32px;line-height:1;flex-shrink:0;">✅</span><span>'+t('rightAns')+'<strong>'+LABS[qd.ans]+') '+qd.opts[qd.ans]+'</strong></span></div>';}
+  document.getElementById('fbAns').innerHTML=html;
+  document.getElementById('fbSandarbhText').textContent=qd.ref;
+  setupFbFreeze();
+  var bar=document.getElementById('fbBar');if(bar){bar.style.transition='none';bar.style.width='100%';setTimeout(function(){startFbAutoNext();},55);}
+}
+function clearAutoNext(){fbFrozen=false;if(S.autoNextFbInt){clearInterval(S.autoNextFbInt);S.autoNextFbInt=null;}}
+function closeFb(){clearAutoNext();playWhoosh();document.getElementById('fbOverlay').classList.remove('show');S.fbOpen=false;setTimeout(advanceQ,115);}
+
+// ══════════════════════════════════════════
+// TIMER
+// ══════════════════════════════════════════
+var CIRC=2*Math.PI*35;
+function startTimer(){stopTimer();S.timerLeft=S.timerDef;updTimer();S.timerInt=setInterval(function(){if(S.paused||S.fbOpen)return;S.timerLeft--;updTimer();if(S.timerLeft<=0){stopTimer();if(S.answered[S.q]===null){S.answered[S.q]='timeout';S.skipped++;advanceQ();}}},1000);}
+function stopTimer(){if(S.timerInt){clearInterval(S.timerInt);S.timerInt=null;}}
+function updTimer(){var tt=Math.max(0,S.timerLeft);document.getElementById('timerNum').textContent=tt;var pct=tt/S.timerDef,offset=CIRC*(1-pct);var arc=document.getElementById('timerArc');arc.style.strokeDashoffset=offset;arc.style.stroke=pct>0.5?'var(--criml)':pct>0.25?'var(--gold)':'#e74c3c';}
+var timerTY=0,timerAcc=0;
+document.getElementById('timerRing').addEventListener('wheel',function(e){e.preventDefault();adjTimer(e.deltaY>0?-5:5);},{passive:false});
+document.getElementById('timerRing').addEventListener('touchstart',function(e){timerTY=e.touches[0].clientY;timerAcc=0;},{passive:true});
+document.getElementById('timerRing').addEventListener('touchmove',function(e){e.preventDefault();var dy=timerTY-e.touches[0].clientY;timerTY=e.touches[0].clientY;timerAcc+=dy;if(Math.abs(timerAcc)>=12){adjTimer(timerAcc>0?5:-5);timerAcc=0;}},{passive:false});
+function adjTimer(d){S.timerDef=Math.min(120,Math.max(10,S.timerDef+d));S.timerLeft=S.timerDef;updTimer();}
+
+// ══════════════════════════════════════════
+// PAUSE & MENU
+// ══════════════════════════════════════════
+function togglePause(){S.paused=!S.paused;document.getElementById('pauseOv').classList.toggle('show',S.paused);document.getElementById('pauseBtn').textContent=S.paused?'▶':'⏸';}
+function resumeQuiz(){if(S.paused)togglePause();}
+function openMenu(){document.getElementById('menuOv').classList.add('show');}
+function closeMenu(){document.getElementById('menuOv').classList.remove('show');}
+
+// ══════════════════════════════════════════
+// RESULT
+// ══════════════════════════════════════════
+function showResult(){
+  stopTimer();clearAutoNext();
+  var pct=Math.round((S.correct/50)*100);
+  saveHistory();showScreen('resultScreen');
+  document.getElementById('finalScore').textContent=S.score;
+  document.getElementById('finalPct').textContent=pct+'%';
+  document.getElementById('stC').textContent=S.correct;
+  document.getElementById('stW').textContent=S.wrong;
+  document.getElementById('stS').textContent=S.skipped;
+  var grades=t('resGrades'),grade=grades[grades.length-1];
+  for(var gi=0;gi<grades.length;gi++){if(pct>=grades[gi].p){grade=grades[gi];break;}}
+  document.getElementById('resGrade').textContent=grade.g;
+  document.getElementById('resVerdict').textContent=grade.v;
+  document.getElementById('scoreCircle').style.background='conic-gradient(var(--criml) '+(pct*3.6)+'deg, rgba(25,4,10,0.3) 0deg)';
+  spkBurst(window.innerWidth/2,window.innerHeight*0.3,36);playBell();renderHistory();
+}
+
+function restartQuiz(){
+  clearAutoNext();stopTimer();
+  document.getElementById('gameoverOv').classList.remove('show');
+  document.getElementById('fbOverlay').classList.remove('show');
+  S.fbOpen=false;
+  spkBurst(window.innerWidth/2,window.innerHeight/2,18);
+  cineTrans(function(){showScreen('diffScreen');});
+}
+
+function goHome(){
+  clearAutoNext();stopTimer();
+  document.getElementById('gameoverOv').classList.remove('show');
+  document.getElementById('fbOverlay').classList.remove('show');
+  document.getElementById('menuOv').classList.remove('show');
+  document.getElementById('pauseOv').classList.remove('show');
+  S.fbOpen=false;S.paused=false;
+  cineTrans(function(){showScreen('langScreen');});
+}
+
+// ══════════════════════════════════════════
+// TOAST
+// ══════════════════════════════════════════
+function showToast(msg){var tt=document.getElementById('toast');tt.textContent=msg;tt.classList.add('show');setTimeout(function(){tt.classList.remove('show');},2400);}
+
+// ══════════════════════════════════════════
+// EVENT LISTENERS
+// ══════════════════════════════════════════
+document.getElementById('langEn').addEventListener('click',function(){spkEl(this);setTimeout(function(){selectLang('en');},120);});
+document.getElementById('langHi').addEventListener('click',function(){spkEl(this);setTimeout(function(){selectLang('hi');},120);});
+document.getElementById('rulesNextBtn').addEventListener('click',function(){spkEl(this);setTimeout(goDiffScreen,120);});
+document.getElementById('rulesBackBtn').addEventListener('click',function(){spkEl(this);setTimeout(goLang,120);});
+document.getElementById('dEasy').addEventListener('click',function(){spkEl(this);setTimeout(function(){selectDifficulty('easy');},120);});
+document.getElementById('dMed').addEventListener('click',function(){spkEl(this);setTimeout(function(){selectDifficulty('med');},120);});
+document.getElementById('dHard').addEventListener('click',function(){spkEl(this);setTimeout(function(){selectDifficulty('hard');},120);});
+document.getElementById('diffBackBtn').addEventListener('click',function(){spkEl(this);setTimeout(goRules,120);});
+document.getElementById('nameSaveBtn').addEventListener('click',function(){
+  var v=document.getElementById('nameInp').value.trim();if(!v){showToast(t('nameToast'));return;}
+  S.playerName=v;saveS();spkEl(this);document.getElementById('nameOv').classList.remove('show');
+  setTimeout(function(){cineTrans(function(){actuallyStartQuiz();});},160);
+});
+document.getElementById('nameInp').addEventListener('keydown',function(e){if(e.key==='Enter')document.getElementById('nameSaveBtn').click();});
+document.getElementById('pauseBtn').addEventListener('click',function(){togglePause();});
+document.getElementById('menuBtn').addEventListener('click',function(){openMenu();});
+document.getElementById('prevBtn').addEventListener('click',function(){goPrev();});
+document.getElementById('skipBtn').addEventListener('click',function(){skipQ();});
+document.getElementById('nextBtn').addEventListener('click',function(){spkEl(this);playWhoosh();clearAutoNext();setTimeout(advanceQ,100);});
+document.getElementById('contBtn').addEventListener('click',function(){clearAutoNext();closeFb();});
+document.getElementById('menuOv').addEventListener('click',function(e){if(e.target===this)closeMenu();});
+document.getElementById('mResume').addEventListener('click',function(){spkEl(this);closeMenu();setTimeout(resumeQuiz,100);});
+document.getElementById('mHome').addEventListener('click',function(){spkEl(this);closeMenu();setTimeout(goHome,100);});
+document.getElementById('mRestart').addEventListener('click',function(){spkEl(this);closeMenu();setTimeout(restartQuiz,100);});
+document.getElementById('mResult').addEventListener('click',function(){spkEl(this);closeMenu();setTimeout(showResult,100);});
+document.getElementById('restartBtn').addEventListener('click',function(){spkEl(this);setTimeout(restartQuiz,120);});
+document.getElementById('homeBtn2').addEventListener('click',function(){spkEl(this);setTimeout(goHome,120);});
+document.getElementById('goRestartBtn').addEventListener('click',function(){spkEl(this);setTimeout(restartQuiz,120);});
+document.getElementById('goHomeBtn').addEventListener('click',function(){spkEl(this);setTimeout(goHome,120);});
+
+// ══════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════
+loadS();
+if(S.playerName)document.getElementById('nameInp').value=S.playerName;
+applyUI();
+showScreen('langScreen');
+</script>
+</body>
+</html>
+HTMLEOF
+echo "Done. File size: $(wc -c < /mnt/user-data/outputs/chapter1-quiz.html) bytes"
